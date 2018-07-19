@@ -1,0 +1,7 @@
+#!/bin/sh
+
+LUA_PATH="../Moose Development/Moose/Utilities/?.lua;;"
+
+for t in ./test-*.lua; do
+	LUA_PATH=${LUA_PATH} lua ${t}
+done

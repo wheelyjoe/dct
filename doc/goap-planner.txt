@@ -1,0 +1,91 @@
+
+### Goal
+
+general types of goals:
+* relaxed
+** patrol, rtb
+* investigative
+** search, intercept
+* aggressive
+** chase, Attack, AttackWithCover, flee
+
+### Action
+
+GoToPoint, GoToCover, Attack, Orbit, Land
+
+
+### Aircraft World States
+
+* bingo - an enum {bingo, joker, jokerplus10, jokerplus20}
+          the actual value is dynamically calculated based on type of
+          aircraft and burnrate, ultimatly results in a true/false
+          state
+* SAM Cover - the unit is within weapon range of a friendly SAM system
+* Friendlies -
+* Winchester -
+* Enemy Detected -
+* 
+
+
+## Strategic planner
+
+states:
+
+world states:
+* enemy detected
+* enemy in range
+* mission type enum: {CAP {HAVCAP, BARCAP, Ambush CAP, Escort, TARCAP etc},
+                      BAI, CAS, DEAD|SEAD, FAC, OCA Strike, Sweep, Strike,
+                      Support {tanker, recon, bda, }}
+
+
+
+## Flight Planner
+
+Handles a specific group/package/mission execution. A flight planner is given
+at a minimum;
+  * a goal
+  * a group(s)/agents to go for goal
+  * a time window to achieve the goal in
+  * an roe
+
+agent("world") states:
+* bingo
+
+fsm states:
+* perform-action
+* idle
+
+goals:
+  API:
+    * priority
+    * isValid()
+    **  motives influence validity; example moral would dictate if an air
+                 defense system would turn on its radar
+    ** situational requirements
+    * desired world state
+    * behavior graph for selecting goals
+
+actions:
+   API:
+    * isValid()
+    * what world state it satisfies
+    * pre-conditions: require more world state
+    * cost() - situational cost
+    * open-ended actions; continue attacking until bingo
+
+
+Agent Roles:
+* airplane
+   * actions: takeoff, land, move to point, orbit, flee, attack
+* bomber
+   * actions: <all airplane actions>
+* fighter
+   * actions: <all airplane actions>, intercept, racetrack
+* support
+   * actions: <all airplane actions>, racetrack
+* multirole
+
+* intercept; pre: cap or scramble
+* patrol; pre: takeoff
+* rtb; pre: low fuel
