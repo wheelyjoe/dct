@@ -1,7 +1,9 @@
 #!/bin/sh
 
-LUA_PATH="../Moose Development/Moose/Utilities/?.lua;;"
+toplevel="$(git rev-parse --show-toplevel)"
 
-for t in ./test-*.lua; do
+LUA_PATH="${toplevel}/src/?.lua;;"
+
+for t in ${toplevel}/tests/test-*.lua; do
 	LUA_PATH=${LUA_PATH} lua ${t}
 done
