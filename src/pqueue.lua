@@ -96,12 +96,15 @@ local PriorityQueue = {
 		end,
 
 		remove = function(self, i)
+			assert(false, "Not supported yet")
 		end,
 
 		increase = function(self, i, deltap)
+			assert(false, "Not supported yet")
 		end,
 
 		decrease = function(self, i, deltap)
+			assert(false, "Not supported yet")
 		end,
 	},
 
