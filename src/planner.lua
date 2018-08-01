@@ -1,0 +1,25 @@
+-- needed data structures and algorthms to implement a planner
+-- data:
+--   * graph
+--      - api: neighbors, cost,
+--
+--   * queue:
+--	    - api: {push,pop}head, {push,pop}tail, peek{head,tail},
+--	           size, empty, iterate, riterate
+--
+--   * stack:
+--	    - api: push, pop, peek, size, empty, iterate, riterate
+--
+--   * priority queue
+--      - api: push, pop, peek, size, empty, iterate, riterate,
+--             increase, decrease
+--
+--   * FSM of some kind (game-design-patterns state chapter would have
+--     and answer)
+--
+-- basic architecture support:
+--   * class inhertiance
+--   * deep object copy
+--
+-- algorithms:
+--   * astar

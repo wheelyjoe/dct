@@ -5,7 +5,7 @@ local function astar(graph, start, goal, heuristic)
 	local came_from = {}
 	local cost_so_far = {}
 
-	frontier:put(0, start)
+	frontier:push(0, start)
 
 	while not frontier:empty() do
 		local current = frontier:pop()
@@ -21,7 +21,7 @@ local function astar(graph, start, goal, heuristic)
 			if cost_so_far[n] == nil or new_cost < cost_so_far[n] then
 				cost_so_far[n] = new_cost
 				local p = new_cost + heuristic(goal, n)
-				frontier.put(p, n)
+				frontier.push(p, n)
 				came_from[n] = current
 			end
 		end
