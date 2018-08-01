@@ -1,5 +1,11 @@
 local PriorityQueue = require "pqueue"
 
+function printtable(t)
+	for k,v in pairs(t) do
+		print("index: ", k, "prio: ", v.prio, "data: ", v.data)
+	end
+end
+
 function test()
 	local input = {
 		{3, "Clear drains"},
@@ -13,9 +19,9 @@ function test()
 
 	local verify = {
 		{1, "Solve RC tasks"},
+		{2, "Toyota"},
 		{2, "Tax return"},
 		{2, "Ford"},
-		{2, "Toyota"},
 		{3, "Clear drains"},
 		{4, "Feed cat"},
 		{5, "Make tea"},
@@ -29,13 +35,19 @@ function test()
 	assert(pq:size() == #verify, string.format("length of pq(%s) != verify(%d)",
 		   pq:size(), #verify))
 
-	pq:peek()
+	local i = pq:peek()
+	assert(i == verify[1][2], "peek() failed")
 
-	local i = 0
-	for p, t in pq.pop, pq do
+	--printtable(pq)
+
+	i = 0
+	for t, p in pq.pop, pq do
 		i = i+1
 		local v = verify[i]
-		assert(v[1] == p and v[2] == t, "pq, ordering not as expected")
+		assert(v[1] == p and v[2] == t,
+			   "pq, ordering not as expected")
+		--print("------")
+		--printtable(pq)
 	end
 
 	assert(pq:empty() == true, "pq, not empty")
@@ -46,4 +58,4 @@ r = "Failed"
 if test() then
 	r = "Passed"
 end
-print(string.format("%s - PQueue Tests", r))
+print(string.format("%s - Priority Queue Tests", r))

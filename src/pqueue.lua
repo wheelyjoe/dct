@@ -1,40 +1,60 @@
--- Priority queue implementation form:
---   https://rosettacode.org/wiki/Priority_queue#Lua
-
+-- A min-heap priority queue implementation
 -- API:
---   push(prio, item)
---   pop()
---   empty()
+--   push(prio, val)
+--   val, prio = pop()
+--   val, prio = peek()
 --   size()
---   peek()
---   remove(item)
---   increase(deltaprio, item)
---   decrease(deltaprio, item)
---   __next() -- allows stepping through the queue
+--   empty()
+--   remove(itemindex)
+--   increase(itemindex, deltaprio)
+--   decrease(itemindex, deltaprio)
 
 local PriorityQueue = {
 	__index = {
-		push = function(self, p, v)
-			local q = self[p]
-			if not q then
-				q = {first = 1, last = 0}
-				self[p] = q
-			end
-			q.last = q.last + 1
-			q[q.last] = v
+		_leftchild = function(self, i)
+			return 2*i
 		end,
 
-		pop = function(self)
-			for p, q in pairs(self) do
-				if q.first <= q.last then
-					local v = q[q.first]
-					q[q.first] = nil
-					q.first = q.first + 1
-					return p, v
-				else
-					self[p] = nil
-				end
+		_rightchild = function(self, i)
+			return 2*i+1
+		end,
+
+		_parent = function(self, i)
+			return math.floor(i/2)
+		end,
+
+		_swap = function(self, i, j)
+			local a = self[i]
+			self[i] = self[j]
+			self[j] = a
+		end,
+
+		_siftup   = function(self, i)
+			while i > 1 and self[self:_parent(i)].prio > self[i].prio do
+				self:_swap(i, self:_parent(i))
+				i = self:_parent(i)
 			end
+		end,
+
+		_siftdown = function(self, i)
+			while self:_leftchild(i) <= self:size() do
+				local m = self:_leftchild(i)
+
+				if m ~= self:size() and
+					self[m+1].prio < self[m].prio then
+					m = m + 1
+				end
+				if self[m].prio < self[i].prio then
+					self:_swap(i, m)
+				else
+					break
+				end
+				i = m
+			end
+		end,
+
+		size = function(self)
+			return #self
 		end,
 
 		empty = function(self)
@@ -44,21 +64,44 @@ local PriorityQueue = {
 			return false
 		end,
 
-		peek = function(self)
-			for p, q in pairs(self) do
-				if q.first <= q.last then
-					local v = q[q.first]
-					return p, v
-				end
-			end
+		push = function(self, p, v)
+			local d = {prio = p, data = v}
+			local i = self:size()+1
+
+			self[i] = d
+			self:_siftup(i)
 		end,
 
-		size = function(self)
-			local l = 0
-			for p, q in pairs(self) do
-				l = l + (q.last - q.first + 1)
+		pop = function(self)
+			if self:empty() then
+				return nil
 			end
-			return l
+			local sz = self:size()
+			local data = self[1].data
+			local prio = self[1].prio
+
+			self[1] = self[sz]
+			self[sz] = nil
+			self:_siftdown(1)
+			return data, prio
+		end,
+
+
+		peek = function(self)
+			if self:empty() then
+				return nil
+			end
+
+			return self[1].data, self[1].prio
+		end,
+
+		remove = function(self, i)
+		end,
+
+		increase = function(self, i, deltap)
+		end,
+
+		decrease = function(self, i, deltap)
 		end,
 	},
 
