@@ -52,10 +52,11 @@ This commander can be tied to a physical object in game.
 
 ### AWACS / GCI
 
-Is responsible to vectoring 
-
- or can monitor the
-AWACS service to determine if it is "alive" or not.
+Is responsible for vectoring flights to intercept unknown and threat
+contacts within a given AO. Is also responsible for scrambling any
+alert aircraft. Will only vector aircraft that have "checked-in".
+Is tied to the in game AWACS service in DCS to determine if it is
+"alive" or not.
 
 
 ## Strategic AI
@@ -73,6 +74,7 @@ scripting engine.
 
 Available sensors are:
 	visual, optic, radar irst, rwr, dlink
+
 
 ## Target Track Manager
 
@@ -120,12 +122,12 @@ members of a squadron.
 * **a/c type** (string) squadrons can only be composed of a single type of a/c
 * **a/c max** (number) max a/c the sqdn can ever have
 * **a/c table** list of available a/c including their schedule
-* **mission queue** 
+* **mission queue**
 * **active groups**
 
 **Methods:**
 
-* 
+*
 
 
 ## Airbase Manager

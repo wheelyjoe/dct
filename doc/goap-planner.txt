@@ -1,17 +1,26 @@
-
 ### Goal
 
 general types of goals:
 * relaxed
-** patrol, rtb
+** patrol, rtb, refuel
 * investigative
 ** search, intercept
 * aggressive
-** chase, Attack, AttackWithCover, flee
+** chase, Attack, AttackWithSAMCover, AttackWithSupport, flee
+
+#### API:
+* priority
+* isValid()
+**  motives influence validity; example moral would dictate if an air
+    defense system would turn on its radar
+** situational requirements
+* desired world state
+* behavior graph for selecting goals
+
 
 ### Action
 
-GoToPoint, GoToCover, Attack, Orbit, Land
+GoToPoint, GoToSAMCover, Attack, Orbit, Patrol, Refuel, SetROE
 
 
 ### Aircraft World States
@@ -21,33 +30,11 @@ GoToPoint, GoToCover, Attack, Orbit, Land
           aircraft and burnrate, ultimatly results in a true/false
           state
 * SAM Cover - the unit is within weapon range of a friendly SAM system
-* Friendlies -
-* Winchester -
-* Enemy Detected -
-* 
+* Friendlies Nearby - other friendly CAP units are nearby
+* Winchester - a/c weapon state
+* Enemy Detected - an enemy available to attach
+* A/C ROE - a/c roe setting; hold, return fire, free
 
-
-## Strategic planner
-
-states:
-
-world states:
-* enemy detected
-* enemy in range
-* mission type enum: {CAP {HAVCAP, BARCAP, Ambush CAP, Escort, TARCAP etc},
-                      BAI, CAS, DEAD|SEAD, FAC, OCA Strike, Sweep, Strike,
-                      Support {tanker, recon, bda, }}
-
-
-
-## Flight Planner
-
-Handles a specific group/package/mission execution. A flight planner is given
-at a minimum;
-  * a goal
-  * a group(s)/agents to go for goal
-  * a time window to achieve the goal in
-  * an roe
 
 agent("world") states:
 * bingo
@@ -55,16 +42,6 @@ agent("world") states:
 fsm states:
 * perform-action
 * idle
-
-goals:
-  API:
-    * priority
-    * isValid()
-    **  motives influence validity; example moral would dictate if an air
-                 defense system would turn on its radar
-    ** situational requirements
-    * desired world state
-    * behavior graph for selecting goals
 
 actions:
    API:
@@ -89,3 +66,37 @@ Agent Roles:
 * intercept; pre: cap or scramble
 * patrol; pre: takeoff
 * rtb; pre: low fuel
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Strategic planner
+
+states:
+
+world states:
+* enemy detected
+* enemy in range
+* mission type enum: {CAP {HAVCAP, BARCAP, Ambush CAP, Escort, TARCAP etc},
+                      BAI, CAS, DEAD|SEAD, FAC, OCA Strike, Sweep, Strike,
+                      Support {tanker, recon, bda, }}
+
+
+
+## Flight Planner
+
+Handles a specific group/package/mission execution. A flight planner is given
+at a minimum;
+  * a goal
+  * a group(s)/agents to go for goal
+  * a time window to achieve the goal in
+  * an roe
