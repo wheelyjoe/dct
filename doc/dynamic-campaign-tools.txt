@@ -11,7 +11,7 @@ What problems are we trying to solve with a dynamic AI system like this?
   to intercept this push instead of just orbiting on their racetrack until the
   push comes into "range" of this CAP)
 * _reduce problem of an "empty world"_
-* _reduce the requirements on a scenario designer to think about details the
+* _reduce the requirements on a scenario designer to think about details
   the AI should just handle_
 
 
@@ -31,13 +31,124 @@ This is largely controlled directly by DCS and can only be manipulated in a
 limited fashion. So we will in generally ignore/live-with what DCS currently
 implements and manipulate what we can through the tactical manager.
 
-TODO: there is some level of unit/group level ai manipulation that can happen
-so this may need to be rethought later.
+Aircraft can be controlled at the group and individual unit level.
+For the most part units will be controlled as a group.
 
-Individual groups of AI will still attack threats if they can.
+The basic layout of this "group leader" agent:
+
+          orders
+            v
+  msgs -> daemon -> world state -> planner -> plan -> execute plan
+           ^   ^                                        |
+        threat +---------------------- monitor plan  <--+
+         info
+           ^
+  stimuli -+
+
+Basic life-cycle of a flight:
+
+  1. spawn: create group at requested spawn location
+  2. takeoff: trigger group to activate AI, this causes the AI to automatically takeoff
+  3. fly: fly flight-plan / re-plan if/when necessary
+  4. land: no more planning possible, rtb
+  5. cleanup
+
+What defines a flight?:
+
+  * primary mission tasking
+    - target package or station location
+  * Initial ROE set
+
+FSM:
+
+  spawn -> takeoff -> planning -> cleanup
+                        ^  |
+                        +--+
+
+  takeoff:
+   - leave transition requirements:
+     * all unit members have taken off
+     * group has rejoined
+   - will hold a group 10mn from the airbase until all units in the group
+     have taken off plus 30 seconds. The new tasking will be assigned
+     if within 10 seconds of the first takeoff event all units have not
+     triggered their takeoff events.
+   - the hold point is randomly selected within a 45 degree arc toward
+     the group's assigned station/target area, at an altitude randomly
+     selected between 2000 AGL and 6000 AGL not to exceed the group's
+     assigned station altitude.
+
+Events to monitor:
+ * shot
+ * takeoff
+ * land
+
+Utility System:
+ * threat monitoring
+ * fuel monitoring
+
+World States:
+ * bool mission-complete  // could also mean mission was aborted
+ * bool mission-start
+ * bool in-air
+ * bool fuel-low
+ * bool tanker-available
+ * bool sensors-enabled
+ * bool winchester
+ * bool target-dead
+ * bool target-hot
+ * handle at-target-position
+ * handle at-station-position
+ * enum enroute-tasking
+ * enum orbit-type
+
+Action API:
+ * ws_precond
+ * ws_effects
+ * cost
+ * bool context_precond()
+ * bool context_effects()
+ * void run()
+
+Goals:
+ * patrol
+   - at-station-location, sensors-enabled, 
+
+Actions:
+ * rtb
+   - precond: in-air
+   - effects: !in-air, mission-complete
+
+ * takeoff
+   - precond: !in-air
+   - effects: in-air, mission-start
+
+ * refuel
+   - precond:  tanker-available, fuel-low
+   - effects:  !fuel-low
+
+ * goto
+   - precond: !at-location
+   - effects: at-location
+
+ * orbit
+   - precond: at-location
+   - effects: orbit-type=orbit
+
+ * patrol
+   - precond: at-location
+   - effects: orbit-type=race-track
+
+ * sensors-enable
+   - precond: !sensors-enabled
+   - effects: sensors-enabled
+
+* sensors-disable
+   - precond: sensors-enabled
+   - effects: !sensors-enabled
 
 
-## Tactical AI
+## Squad AI
 
 A **Tactical AI** is **responsible for the overall tactical situation of a
 coalition in a given battle space**.
@@ -73,7 +184,7 @@ Sensors are largely dictated by what is already available in DCS through the
 scripting engine.
 
 Available sensors are:
-	visual, optic, radar irst, rwr, dlink
+	visual, optic, radar, irst, rwr, dlink
 
 
 ## Target Track Manager
