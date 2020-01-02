@@ -144,6 +144,35 @@ function utils.centroid(point, pcentroid, n)
 end
 
 
+utils.twoD = {}
+function utils.twoD.distance(point1, point2)
+	local dx = point2.x - point1.x
+	local dz = point2.z - point1.z
+	return math.sqrt((dx*dx) + (dz*dz))
+end
+
+utils.threeD = {}
+utils.threeD.vector = {}
+function utils.threeD.vector.magnitude(vec)
+	return math.sqrt(vec.x^2 + vec.y^2 + vec.z^2)
+end
+
+function utils.threeD.vector.scalarmul(scalar, vec)
+	v = {}
+	v.x = vec.x * scalar
+	v.y = vec.y * scalar
+	v.z = vec.z * scalar
+	return v
+end
+
+function utils.threeD.vector.add(vec1, vec2)
+	local v = {}
+	v.x = vec1.x + vec2.x
+	v.y = vec1.y + vec2.y
+	v.z = vec1.z + vec2.z
+	return v
+end
+
 utils.posfmt = {
 	["DD"]   = 1,
 	["DDM"]  = 2,
