@@ -20,6 +20,7 @@ local Region      = require("dct.templates.Region")
 local Asset       = require("dct.Asset")
 local Commander   = require("dct.ai.Commander")
 local Command     = require("dct.Command")
+local TicketSystem = require("dct.systems.tickets")
 local Logger      = dct.Logger.getByName("Theater")
 local settings    = _G.dct.settings.server
 
@@ -79,6 +80,7 @@ function Theater:_delayedInit()
 	self:_loadOrGenerate()
 	self:_loadPlayerSlots()
 	uiscratchpad(self)
+	TicketSystem(self)
 	self:queueCommand(100, Command(self.export, self))
 end
 
@@ -115,6 +117,10 @@ function Theater:_loadRegions()
 			end
 		end
 	end
+end
+
+function Theater:getStats(side)
+	return self.stats[side]
 end
 
 function Theater:setTimings(cmdfreq, tgtfps, percent)
