@@ -7,6 +7,7 @@
 
 local enum        = require("dct.enum")
 local dctutils    = require("dct.utils")
+local DownedPilot = require("dct.assets.PilotAsset")
 local Logger      = require("dct.Logger").getByName("Tickets")
 
 --[[ Ticket system
@@ -60,6 +61,14 @@ local function onDead(theater, event, tracked)
 	tracked[event.initiator:getName()] = nil
 end
 
+local function onEject(theater, event, tracked)
+	if tracked[event.initiator:getName()] == nil then
+		return
+	end
+	DownedPilot(theater, event.initiator)
+	tracked[event.initiator:getName()] = nil
+end
+
 local function onLand(_, event, tracked)
 	if tracked[event.initiator:getName()] == nil or
 	   event.place == nil or event.place.getCoalition == nil then
@@ -95,6 +104,7 @@ local function sysTicketsEventHandler(theater, event)
 		[world.event.S_EVENT_BIRTH]    = onBirth,
 		[world.event.S_EVENT_CRASH]    = onCrash,
 		[world.event.S_EVENT_DEAD]     = onDead,
+		[world.event.S_EVENT_EJECTION] = onEject,
 		[world.event.S_EVENT_LAND]     = onLand,
 		[world.event.S_EVENT_PLAYER_LEAVE_UNIT] = onPlayerLeave,
 	}

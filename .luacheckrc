@@ -22,6 +22,7 @@ read_globals = {
 	"missionCommands",
 	"coord",
 	"land",
+	"country",
 
 	-- DCT specific
 	"dct",
