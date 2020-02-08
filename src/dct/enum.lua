@@ -72,6 +72,7 @@ local missionType = {
 	["SEAD"]     = 4,
 	["BAI"]      = 5,
 	["OCA"]      = 6,
+	["SEA"]      = 7,
 }
 
 local assetClass = {
@@ -135,6 +136,9 @@ local missionTypeMap = {
 	},
 	[missionType.CAP] = {
 		[assetType.AIRSPACE]   = true,
+	},
+	[missionType.SEA] = {
+		[assetType.SEA]        = true,
 	},
 }
 
