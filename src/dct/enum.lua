@@ -35,6 +35,7 @@ local assetType = {
 	["SHORAD"]      = 19,
 	["AIRBASE"]     = 20,
 	["PLAYERGROUP"] = 21,
+	["SQUADRON"]    = 22,
 }
 
 --[[

@@ -146,6 +146,12 @@ end
 --  Asset because each side may have a different view and ordering
 --  for the Asset.
 function Asset:getPriority(side)
+	local Logger = require("dct.Logger").getByName("Asset")
+	Logger:error(string.format("Asset:getPriority - side:   %d", side))
+	Logger:error(string.format("Asset:getPriority - region: %d",
+		self._priority[side].region))
+	Logger:error(string.format("Asset:getPriority - asset:  %d",
+		self._priority[side].asset))
 	return ((self._priority[side].region * 65536) +
 		self._priority[side].asset)
 end
