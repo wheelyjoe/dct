@@ -4,6 +4,7 @@
 -- Implements a Observable interface
 --]]
 
+require("os")
 local class  = require("libs.class")
 local Logger = require("dct.Logger").getByName("Observable")
 
@@ -34,10 +35,16 @@ function Observable:removeHandler(func)
 end
 
 function Observable:onEvent(event)
+	local tstart = os.clock()
+	local hdlrcnt = 0
 	for observer, ctx in pairs(self._observers) do
+		hdlrcnt = hdlrcnt + 1
 		Logger:debug("executing handler: "..tostring(observer))
 		observer(ctx, event)
 	end
+	Logger:debug(
+		string.format("DCS Event Handlers - time: %6.3fms; count: %d",
+			(os.clock() - tstart)*1000, hdlrcnt))
 end
 
 return Observable
