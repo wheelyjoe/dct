@@ -90,7 +90,6 @@ local assetClass = {
 		[assetType.CHECKPOINT]  = true,
 		[assetType.FACTORY]     = true,
 		[assetType.SHORAD]      = true,
-		[assetType.AIRBASE]     = true,
 	},
 	["BASES"] = {
 		[assetType.AIRBASE]     = true,
