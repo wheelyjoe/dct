@@ -55,7 +55,9 @@ function menus.createMenu(theater, asset)
 		})
 
 	local msnmenu = addmenu(gid, "Mission", nil)
+	asset.uimenus.mission = {}
 	local rqstmenu = addmenu(gid, "Request", msnmenu)
+	asset.uimenus.mission["Request"] = rqstmenu
 	-- TODO: I am knowingly not sorting the keys so the order in which
 	-- commands are applied could be random, do this later if it seems to
 	-- be a problem as lua doesn't provide a default solution.
@@ -69,34 +71,40 @@ function menus.createMenu(theater, asset)
 			})
 	end
 
-	addcmd(gid, "Briefing", msnmenu, theater.playerRequest, theater,
+	asset.uimenus.mission["Briefing"] =
+		addcmd(gid, "Briefing", msnmenu, theater.playerRequest, theater,
 		{
 			["name"]   = name,
 			["type"]   = enum.uiRequestType.MISSIONBRIEF,
 		})
-	addcmd(gid, "Status", msnmenu, theater.playerRequest, theater,
+	asset.uimenus.mission["Status"] =
+		addcmd(gid, "Status", msnmenu, theater.playerRequest, theater,
 		{
 			["name"]   = name,
 			["type"]   = enum.uiRequestType.MISSIONSTATUS,
 		})
-	addcmd(gid, "Abort", msnmenu, theater.playerRequest, theater,
+	asset.uimenus.mission["Abort"] =
+		addcmd(gid, "Abort", msnmenu, theater.playerRequest, theater,
 		{
 			["name"]   = name,
 			["type"]   = enum.uiRequestType.MISSIONABORT,
 			["value"]  = "player requested"
 		})
-	addcmd(gid, "Rolex +30", msnmenu, theater.playerRequest, theater,
+	asset.uimenus.mission["Rolex"] =
+		addcmd(gid, "Rolex +30", msnmenu, theater.playerRequest, theater,
 		{
 			["name"]   = name,
 			["type"]   = enum.uiRequestType.MISSIONROLEX,
 			["value"]  = 30*60,  -- seconds
 		})
-	addcmd(gid, "Check-In", msnmenu, theater.playerRequest, theater,
+	asset.uimenus.mission["Check-In"] =
+		addcmd(gid, "Check-In", msnmenu, theater.playerRequest, theater,
 		{
 			["name"]   = name,
 			["type"]   = enum.uiRequestType.MISSIONCHECKIN,
 		})
-	addcmd(gid, "Check-Out", msnmenu, theater.playerRequest, theater,
+	asset.uimenus.mission["Check-Out"] =
+		addcmd(gid, "Check-Out", msnmenu, theater.playerRequest, theater,
 		{
 			["name"]   = name,
 			["type"]   = enum.uiRequestType.MISSIONCHECKOUT,
