@@ -73,6 +73,10 @@ local missionType = {
 	["BAI"]      = 5,
 	["OCA"]      = 6,
 	["SEA"]      = 7,
+	["SAR"]      = 8,
+	["RECON"]    = 9,
+	["AEW"]      = 10,
+	["AAR"]      = 11,
 }
 
 local assetClass = {
