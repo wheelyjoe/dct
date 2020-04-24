@@ -227,7 +227,7 @@ local function getkeys(objtype)
 	if objtype == enum.assetType.AIRBASE then
 		table.insert(keys, {
 			["name"]  = "defenses",
-			["type"]  = "string", })
+			["type"]  = "table", })
 	end
 
 	return keys

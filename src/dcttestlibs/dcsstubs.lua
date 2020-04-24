@@ -572,6 +572,30 @@ end
 _G.Coalition = Coalition
 
 
+local Airbase = class(Coalition)
+function Airbase:__init(objdata)
+	objdata.category = Object.Category.BASE
+	Coalition.__init(self, objdata)
+end
+Airbase.Category = {
+	["AIRDROME"] = 0,
+	["HELIPAD"]  = 1,
+	["SHIP"]     = 2,
+}
+
+function Airbase.getByName(name)
+	return objects[Object.Category.BASE][name]
+end
+
+function Airbase:getParking(available)
+end
+
+function Airbase:getCallsign()
+	return "foo"
+end
+_G.Airbase = Airbase
+
+
 local Unit = class(Coalition)
 function Unit:__init(objdata, group, pname)
 	objdata.category = Object.Category.UNIT
@@ -613,6 +637,10 @@ end
 
 function Unit:getPlayerName()
 	return self.pname
+end
+
+function Unit:getCallsign()
+	return "foo"
 end
 _G.Unit = Unit
 

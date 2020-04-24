@@ -90,20 +90,10 @@ local assetClass = {
 		[assetType.SHORAD]      = true,
 		[assetType.AIRBASE]     = true,
 	},
-	["BASES"] = {
-		[assetType.AIRBASE]     = true,
-	},
 	-- agents never get seralized to the state file
 	["AGENTS"] = {
 		[assetType.PLAYERGROUP] = true,
 	}
-	--[[
-	-- Means ground tactical units
-	["TACTICAL"] = {
-	},
-	["AIRBORNE"] = {
-	},
-	--]]
 }
 
 local missionTypeMap = {

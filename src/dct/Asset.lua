@@ -13,6 +13,11 @@ local dctenum  = require("dct.enum")
 local dctutils = require("dct.utils")
 local settings = _G.dct.settings
 
+local norenametype = {
+	[dctenum.assetType.PLAYERGROUP] = true,
+	[dctenum.assetType.AIRBASE]     = true,
+}
+
 local function generateCodename(objtype)
 	local codenamedb = settings.codenamedb
 	local typetbl = codenamedb[objtype]
@@ -28,10 +33,11 @@ end
 local function getcollection(assettype, asset, template, region)
 	local collection = nil
 	if assettype == dctenum.assetType.AIRBASE then
-		collection = require("dct.dcscollections.NullCollection")
+		collection = require("dct.dcscollections.AirbaseCollection")
 	elseif assettype == dctenum.assetType.AIRSPACE then
 		collection = require("dct.dcscollections.AirspaceCollection")
-	elseif dctenum.assetClass.STRATEGIC[assettype] then
+	elseif dctenum.assetClass.STRATEGIC[assettype] or
+		assettype == dctenum.assetType.BASEDEFENSE then
 		collection = require("dct.dcscollections.StaticCollection")
 	elseif assettype == dctenum.assetType.PLAYERGROUP then
 		collection = require("dct.dcscollections.PlayerCollection")
@@ -125,7 +131,7 @@ function Asset:__init(template, region)
 		self.owner    = template.coalition
 		self.rgnname  = region.name
 		self.tplname  = template.name
-		if self.type == dctenum.assetType.PLAYERGROUP then
+		if norenametype[self.type] == true then
 			self.name = self.tplname
 		else
 			self.name = region.name.."_"..self.owner.."_"..template.name
@@ -270,21 +276,6 @@ return Asset
      * has death goals due to having DCS objects
    * associates a "team leader" AI with the asset to control the
      spawned DCS objects
-
--- AirbaseAsset
--- is a composite asset consisting of multiple other assets
---   (squadrons, players, defense forces, etc)
---  inherents from BaseAsset, difference from:
-   * depending on underlying DCS object type the deathgoal will either
-     be the death of the underlying unit or the asset can never die it
-     just triggers an internal event notifying the observers of the
-     change in side
-   * ability to register an associated asset; registration would
-     consist of:
-       - asset name and asset type (player, squadron, defense force,
-         underlying asset)
-   * on death the assets associated are marked as dead or disabled
-   * provides custom functions to spawn an aircraft group
 
 -- SquadronAsset
 --  inherets from BaseAsset

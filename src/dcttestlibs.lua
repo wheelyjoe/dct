@@ -3,3 +3,8 @@
 --]]
 
 require("dcttestlibs.dcsstubs")
+Airbase({
+	["name"] = "Bandar-e-jask airfield",
+	["exists"] = true,
+	["coalition"] = coalition.side.BLUE,
+})

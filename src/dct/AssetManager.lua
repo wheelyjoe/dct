@@ -237,8 +237,6 @@ function AssetManager:marshal()
 	}
 	local shouldmarshal = utils.shallowclone(enum.assetClass.STRATEGIC)
 	shouldmarshal[enum.assetType.AIRSPACE] = true
-	shouldmarshal[enum.assetType.AIRBASE]  = true
-
 
 	for name, asset in pairs(self._assetset) do
 		if shouldmarshal[asset.type] ~= nil then

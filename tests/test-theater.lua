@@ -218,7 +218,7 @@ local function main()
 	}, playergrp, "bobplayer")
 
 	local theater = dct.Theater()
-	assert(dctcheck.spawngroups == 1, "group spawn broken")
+	assert(dctcheck.spawngroups == 3, "group spawn broken")
 	assert(dctcheck.spawnstatics == 11, "static spawn broken")
 
 	local restriction =
