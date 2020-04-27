@@ -35,6 +35,8 @@ local assetType = {
 	["SHORAD"]      = 19,
 	["AIRBASE"]     = 20,
 	["PLAYERGROUP"] = 21,
+	["SQUADRON"]    = 22,
+	["PLAYERSQUADRON"] = 23,
 }
 
 --[[
@@ -148,6 +150,12 @@ local uiRequestType = {
 	["MISSIONJOIN"]     = 12,
 }
 
+local defaultsqdns = {
+	[coalition.side.NEUTRAL] = "Player Default SQDN Neutral",
+	[coalition.side.RED]     = "Player Default SQDN Red",
+	[coalition.side.BLUE]    = "Player Default SQDN Blue",
+}
+
 local enum = {
 	["assetType"]         = assetType,
 	["assetTypePriority"] = assetTypePriority,
@@ -156,6 +164,7 @@ local enum = {
 	["missionTypeMap"]    = missionTypeMap,
 	["missionAbortType"]  = missionAbortType,
 	["uiRequestType"]     = uiRequestType,
+	["defaultsqdns"]      = defaultsqdns,
 }
 
 return enum

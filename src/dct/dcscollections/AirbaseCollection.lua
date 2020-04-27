@@ -11,19 +11,19 @@ local enum  = require("dct.enum")
 
 local allowedtpltypes = {
 	[enum.assetType.BASEDEFENSE] = true,
+	[enum.assetType.SQUADRON]    = true,
 }
 
 local AirbaseCollection = class(IDCSObjectCollection)
 function AirbaseCollection:__init(asset, template, region)
 	self._marshalnames = {
-		"defenses", "subordinates",
+		"subordinates",
 	}
-	self.subordinates = {}
 	IDCSObjectCollection.__init(self, asset, template, region)
 end
 
 function AirbaseCollection:_completeinit(template, _)
-	self.defenses  = template.defenses
+	self.subordinates = template.subordinates
 end
 
 --[[
@@ -55,8 +55,9 @@ function AirbaseCollection:notifySubordinates(event)
 end
 
 function AirbaseCollection:generate(assetmgr, region)
-	for _, subordinate in ipairs({"defenses", "squadrons"}) do
+	for _, subordinate in ipairs({"subordinates"}) do
 		for _, name in ipairs(self[subordinate] or {}) do
+			--print("airbase collection subordinate: "..name)
 			local tpl = region:getTemplateByName(name)
 			assert(tpl, string.format("runtime error: airbase(%s) defines "..
 				"a %s template of name '%s', does not exist",

@@ -165,7 +165,95 @@ local function checkside(keydata, tbl)
 	return false
 end
 
+local function checkmsntype(keydata, tbl)
+	for idx, msntype in pairs(tbl[keydata.name]) do
+		local msnstr = string.upper(msntype)
+		if type(msntype) ~= "string" or
+		   enum.missionType[msnstr] == nil then
+			return false
+		end
+		tbl[keydata.name][idx] = enum.missionType[msnstr]
+	end
+	--print("ato list: "..require("libs.json"):encode_pretty(tbl[keydata.name]))
+	return true
+end
+
+local function checkgridfmt(keydata, tbl)
+	local fmt = string.upper(tbl[keydata.name])
+	if dctutils.posfmt[fmt] == nil then
+		return false
+	end
+	tbl[keydata.name] = dctutils.posfmt[fmt]
+	--print("grid fmt: "..require("libs.json"):encode_pretty(tbl[keydata.name]))
+	return true
+end
+
+local function checkplanedata(keydata, tbl)
+	local planedata = tbl[keydata.name]
+	planedata.path = tbl.path
+	local keys = {
+		[1] = {
+			["name"]  = "ato",
+			["type"]  = "table",
+			["check"] = checkmsntype,
+		},
+		[2] = {
+			["name"]  = "current",
+			["type"]  = "number",
+		},
+		[3] = {
+			["name"]  = "max",
+			["type"]  = "number",
+		},
+		[4] = {
+			["name"]    = "flightsize",
+			["type"]    = "number",
+			["default"] = 1,
+		},
+		[5] = {
+			["name"]  = "payloads",
+			["type"]  = "table",
+			["default"] = {},
+		},
+		[6] = {
+			["name"]  = "experience",
+			["type"]  = "table",
+			["default"] = {3, 1},
+		},
+		[7] = {
+			["name"]  = "readytime",
+			["type"]  = "table",
+			["default"] = {300, 60},
+		},
+		[8] = {
+			["name"]  = "alerttime",
+			["type"]  = "table",
+			["default"] = {120, 30},
+		},
+		[9] = {
+			["name"]  = "payloadlimits",
+			["type"]  = "table",
+			["default"] = {},
+		},
+		[10] = {
+			["name"] = "gridfmt",
+			["type"] = "string",
+			["check"] = checkgridfmt,
+			["default"] = "dms",
+		},
+	}
+	dctutils.checkkeys(keys, planedata)
+	planedata.path = nil
+	return true
+end
+
 local function getkeys(objtype)
+	local notpldata = {
+		[enum.assetType.AIRSPACE] = true,
+		[enum.assetType.AIRBASE]  = true,
+		[enum.assetType.SQUADRON] = true,
+	}
+
 	local keys = {
 		[1] = {
 			["name"]  = "name",
@@ -205,10 +293,14 @@ local function getkeys(objtype)
 			["type"]    = "boolean",
 			["default"] = false,
 		},
+		[9] = {
+			["name"]    = "desc",
+			["type"]    = "string",
+			["default"] = "default template description",
+		},
 	}
 
-	if objtype ~= enum.assetType.AIRSPACE and
-		objtype ~= enum.assetType.AIRBASE then
+	if notpldata[objtype] == nil then
 		table.insert(keys, {
 			["name"]  = "tpldata",
 			["type"]  = "table",
@@ -226,10 +318,20 @@ local function getkeys(objtype)
 
 	if objtype == enum.assetType.AIRBASE then
 		table.insert(keys, {
-			["name"]  = "defenses",
+			["name"]  = "subordinates",
 			["type"]  = "table", })
 	end
 
+	if objtype == enum.assetType.SQUADRON then
+		table.insert(keys, {
+			["name"] = "ishuman",
+			["type"] = "boolean",
+			["default"] = false, })
+		table.insert(keys, {
+			["name"]  = "planedata",
+			["type"]  = "table",
+			["check"] = checkplanedata, })
+	end
 	return keys
 end
 

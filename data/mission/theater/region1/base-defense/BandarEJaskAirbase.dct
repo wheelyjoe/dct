@@ -2,7 +2,41 @@ metadata = {
 	["objtype"] = "airbase",
 	["name"] = "Bandar-e-jask airfield",
 	["coalition"] = 2,
-	["defenses"] = {"Bandar E Jask Airbase Defence", },
+	["subordinates"] = {
+		"Bandar E Jask Airbase Defence",
+		"104thFS",
+	},
 	["ignore"] = "true",
-	["desc"] = "this is an airbase",
 }
+
+--[[
+-- not sure this is needed per squadron and can be applied at the airbase
+-- level
+	["reclaimtype"] = "land", -- only aircraft that land back at home base
+							  -- are not considered a loss, this may need to
+							  -- be an airbase specific option as some
+							  -- airbases are broked when it comes to takeoff
+							  -- & landing
+		-- move replacement rate to a logistics module, the squadron will
+		-- simply track its starting airframes, maximum, and current
+		--["replacerate"] = 3600, -- seconds, 1 airframe every X period
+
+	-- ["maintancerate"] = .005, -- probability of a maintance failure
+-- supply should really be dictated by the airbase, consider moving this
+-- to the airbase template.
+-- Provide two types of supply "normal" and "advanced", this allows for
+-- payloads that use advanced weapons (AIM-54, AIM-120, PGMs, etc)
+-- on a different counter system. This should allow missions to be
+-- scheduled just with inferiour weapons, instead of the system not being
+-- able to fulfill the mission request.
+	["generalsupply"] = {
+		["current"] = 2000,
+		["max"]     = 7000,
+		["rate"]    = 3600, -- 100 units every X seconds
+	},
+	["advsupply"] = {
+		["current"] = 300,
+		["max"]     = 1000,
+		["rate"]    = 4*3600, -- 100 units every x seconds
+	}
+--]]

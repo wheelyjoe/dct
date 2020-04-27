@@ -177,6 +177,10 @@ coalition.side.NEUTRAL = 0
 coalition.side.RED     = 1
 coalition.side.BLUE    = 2
 
+function coalition.getAirbases(side)
+	return {}
+end
+
 function coalition.addGroup(cntryid, groupcat, groupdata)
 	dctcheck.spawngroups = dctcheck.spawngroups + 1
 	groupdata.country = cntryid

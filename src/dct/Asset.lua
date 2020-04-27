@@ -14,8 +14,10 @@ local dctutils = require("dct.utils")
 local settings = _G.dct.settings
 
 local norenametype = {
-	[dctenum.assetType.PLAYERGROUP] = true,
-	[dctenum.assetType.AIRBASE]     = true,
+	[dctenum.assetType.PLAYERSQUADRON] = true,
+	[dctenum.assetType.PLAYERGROUP]    = true,
+	[dctenum.assetType.SQUADRON]       = true,
+	[dctenum.assetType.AIRBASE]        = true,
 }
 
 local function generateCodename(objtype)
@@ -41,6 +43,9 @@ local function getcollection(assettype, asset, template, region)
 		collection = require("dct.dcscollections.StaticCollection")
 	elseif assettype == dctenum.assetType.PLAYERGROUP then
 		collection = require("dct.dcscollections.PlayerCollection")
+	elseif assettype == dctenum.assetType.SQUADRON or
+	       assettype == dctenum.assetType.PLAYERSQUADRON then
+		collection = require("dct.dcscollections.SquadronCollection")
 	else
 		assert(false, "unsupported asset type: "..assettype)
 	end

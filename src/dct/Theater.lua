@@ -68,6 +68,7 @@ function Theater:__init()
 	self:_loadGoals()
 	self:_loadRegions()
 	self:_loadOrGenerate()
+	self:_CreateDefaultSquadrons()
 	self:_loadPlayerSlots()
 	uiscratchpad(self)
 	self:queueCommand(100, Command(self.export, self))
@@ -170,16 +171,54 @@ function Theater:_loadOrGenerate()
 end
 
 local function isPlayerGroup(grp, _, _)
+	local slotcnt = 0
 	for _, unit in ipairs(grp.units) do
 		if unit.skill == "Client" then
-			return true
+			slotcnt = slotcnt + 1
 		end
+	end
+	if slotcnt > 0 then
+		assert(slotcnt == 1,
+			string.format("DCT requires 1 slot groups. Group '%s' "..
+				" of type a/c (%s) has more than one player slot.",
+				grp.name, grp.units[1].type))
+		return true
 	end
 	return false
 end
 
+local function genAirbaseMap()
+	local airbase_idx2name = {}
+	for _, ab in pairs(coalition.getAirbases()) do
+		airbase_idx2name[ab:getID()] = ab:getName()
+	end
+	return airbase_idx2name
+end
+
+local function getAirbaseId(grp)
+	assert(grp, "value error: grp cannot be nil")
+	local name = "airdromeId"
+	if grp.category == Unit.Category.HELICOPTER then
+		name = "helipadId"
+	end
+	return grp.data.route.points[1][name]
+end
+
+function Theater:_CreateDefaultSquadrons()
+	for _, val in pairs(coalition.side) do
+		local asset = Asset(Template({
+				["objtype"] = "playersquadron",
+				["name"] = enum.defaultsqdns[val],
+				["regionname"] = "theater",
+				["coalition"] = val,
+			}), {["name"] = "theater", ["priority"] = 1000,})
+			self:getAssetMgr():add(asset)
+	end
+end
+
 function Theater:_loadPlayerSlots()
 	local cnt = 0
+	local idx2ab = genAirbaseMap()
 	for _, coa_data in pairs(env.mission.coalition) do
 		local grps = STM.processCoalition(coa_data,
 			env.getValueDictByKey,
@@ -193,12 +232,22 @@ function Theater:_loadPlayerSlots()
 				["coalition"] = coalition.getCountryCoalition(grp.countryid),
 				["desc"]      = "Player group",
 				["tpldata"]   = grp.data,
+				["airbase"]   = idx2ab[getAirbaseId(grp)]
 			}), {["name"] = "theater", ["priority"] = 1000,})
 			self:getAssetMgr():add(asset)
+			local sqdn =
+				self:getAssetMgr():getAsset(asset.name:match("(%w+)(.+)"))
+			if sqdn == nil then
+				sqdn =
+					self:getAssetMgr():getAsset(enum.defaultsqdns[asset.owner])
+			end
+			-- TODO: register group with their squadron and airbase
+			--sqdn:add(asset)
 			cnt = cnt + 1
 		end
 	end
-	Logger:info(string.format("_loadPlayerSlots(); found %d slots", cnt))
+	Logger:info(string.format("_loadPlayerSlots(); found %d player groups",
+		cnt))
 end
 
 function Theater:export(_)
