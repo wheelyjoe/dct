@@ -8,8 +8,6 @@ local dct = {
 }
 
 _G.dct = dct
-dct.settings  = require("dct.settings")(dctsettings)
+dct.settings  = require("dct.utils.settings")(dctsettings)
 dct.init      = require("dct.init")
-dct.Theater   = require("dct.Theater")
-
 return dct

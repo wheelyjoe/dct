@@ -5,11 +5,17 @@
 --]]
 
 local Theater = require("dct.Theater")
+local runonce = false
 
 local function init()
+	if runonce == true then
+		return
+	end
 	local t = Theater()
 	world.addEventHandler(t)
 	timer.scheduleFunction(t.exec, t, timer.getTime() + 20)
+	_G.dct.Theater = t
+	runonce = true
 end
 
 return init
