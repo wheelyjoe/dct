@@ -6,7 +6,7 @@ local md5 = require("md5")
 require("dcttestlibs")
 require("dct")
 local enum   = require("dct.enum")
-local settings = _G.dct.settings
+local settings = _G.dct.settings.server
 
 local events = {
 	{
@@ -217,10 +217,13 @@ local function main()
 		},
 	}, playergrp, "bobplayer")
 
-	local theater = dct.Theater()
-	assert(dctcheck.spawngroups == 3, "group spawn broken")
-	assert(dctcheck.spawnstatics == 11, "static spawn broken")
-
+	local theater = require("dct.Theater")()
+	assert(dctcheck.spawngroups == 3,
+		string.format("group spawn broken; expected(%d), got(%d)",
+		3, dctcheck.spawngroups))
+	assert(dctcheck.spawnstatics == 11,
+		string.format("static spawn broken; expected(%d), got(%d)",
+		11, dctcheck.spawnstatics))
 	local restriction =
 		theater:getATORestrictions(coalition.side.BLUE, "A-10C")
 	local validtbl = { ["BAI"] = 5, ["CAS"] = 1, ["STRIKE"] = 3,}

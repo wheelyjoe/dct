@@ -73,6 +73,19 @@ function utils.assettype2mission(assettype)
 	return nil
 end
 
+local airbase_id2name_map = nil
+function utils.airbaseId2Name(id)
+	if id == nil then
+		return nil
+	end
+	if airbase_id2name_map == nil then
+		for _, ab in pairs(coalition.getAirbases()) do
+			airbase_id2name_map[ab:getID()] = ab:getName()
+		end
+	end
+	return airbase_id2name_map[id]
+end
+
 function utils.time(dcsabstime)
 	local time = os.time({
 		["year"]  = env.mission.date.Year,
@@ -112,6 +125,7 @@ function utils.date(fmt, time)
 	return os.date(fmt, time)
 end
 
+--[[
 function utils.centroid(points)
 	local i = 0
 	local centroid = {
@@ -134,6 +148,64 @@ function utils.centroid(points)
 	centroid.z = centroid.z / i
 	return centroid
 end
+--]]
+
+function utils.createVec2(vec3)
+	if vec3.z then
+		return {["x"] = vec3.x, ["y"] = vec3.z}
+	end
+	return {["x"] = vec3.x, ["y"] = vec3.y}
+end
+
+function utils.createVec3(vec2, height)
+	if vec2.z then
+		return {["x"] = vec2.x, ["y"] = vec2.y, ["z"] = vec2.z}
+	end
+	local h = height or vec2.alt or 0
+	return {["x"] = vec2.x, ["y"] = h, ["z"] = vec2.y}
+end
+
+function utils.centroid(point, pcentroid, n)
+	if pcentroid == nil or n == nil then
+		return {["x"] = point.x, ["y"] = point.y, ["z"] = point.z,}, 1
+	end
+
+	local centroid = {}
+	local n1 = n + 1
+	local x = point.x or 0
+	local y = point.y or 0
+	local z = point.z or point.alt or 0
+	pcentroid = {
+		["x"] = pcentroid.x or 0,
+		["y"] = pcentroid.y or 0,
+		["z"] = pcentroid.z or 0,
+	}
+	centroid.x = (x + (n * pcentroid.x))/n1
+	centroid.y = (y + (n * pcentroid.y))/n1
+	centroid.z = (z + (n * pcentroid.z))/n1
+	return centroid, n1
+end
+
+-- TODO: test point in rectangle
+-- given: a rectangle with points A, B & C defined in an x,y plane
+--        where, B is the point at the 90-deg angle
+--
+--        -and-
+--
+--        Let M represent the sample point (x,y),
+--        Then, M is inside the rectangle iff
+--          (0 < AM * AB < AB * AB) and (0 < AM * AC < AC * AC)
+--          where, '*' represents the saclar dot product of the two
+--          vectors created by points describing each line segment.
+--
+-- references:
+-- https://math.stackexchange.com/questions/190111/how-to-check-if-a-point-is-inside-a-rectangle
+-- https://stackoverflow.com/questions/2752725/finding-whether-a-point-lies-inside-a-rectangle-or-not
+--
+-- This allows for the creation of runway strike missions by letting DCT
+-- define runway geometry and then determining if a weapon impacts inside
+-- this geometry.
+
 
 utils.posfmt = {
 	["DD"]   = 1,

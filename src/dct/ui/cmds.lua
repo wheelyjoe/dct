@@ -7,10 +7,10 @@
 require("os")
 local class    = require("libs.class")
 local enum     = require("dct.enum")
-local dctutils = require("dct.utils")
+local dctutils = require("dct.utils.utils")
 local human    = require("dct.ui.human")
-local Command  = require("dct.Command")
-local Logger   = require("dct.Logger").getByName("UI")
+local Command  = require("dct.utils.Command")
+local Logger   = require("dct.utils.Logger").getByName("UI")
 local loadout = require("dct.systems.loadouts")
 
 local UICmd = class(Command)
@@ -104,10 +104,14 @@ function TheaterUpdateCmd:_execute(_, cmdr)
 	else
 		msg = msg .. "  No Active Missions\n"
 	end
-	local sqdn = self.theater:getAssetMgr():getAsset(self.asset.squadron)
+	local ato = enum.missionType
+	if self.asset.squadron then
+		ato = self.theater:getAssetMgr():
+			getAsset(self.asset.squadron).planedata.ato
+	end
 	msg = msg .. string.format("\nRecommended Mission Type: %s\n",
 		dctutils.getkey(enum.missionType,
-			cmdr:recommendMissionType(sqdn.ato)) or "None")
+			cmdr:recommendMissionType(ato)) or "None")
 	return msg
 end
 

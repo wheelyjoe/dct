@@ -8,9 +8,9 @@ require("lfs")
 local class = require("libs.class")
 local utils = require("libs.utils")
 local enum  = require("dct.enum")
-local dctutils = require("dct.utils")
+local dctutils = require("dct.utils.utils")
 local Goal  = require("dct.Goal")
-local STM   = require("dct.STM")
+local STM   = require("dct.templates.STM")
 
 --[[
 -- represents the amount of damage that can be taken before
@@ -262,7 +262,7 @@ local function getkeys(objtype)
 		[enum.assetType.AIRSPACE]       = true,
 		[enum.assetType.AIRBASE]        = true,
 		[enum.assetType.PLAYERSQUADRON] = true,
-		[enum.assetType.PLAYERGROUP]    = true,
+		--[enum.assetType.PLAYERGROUP]    = true,
 	}
 
 	local keys = {

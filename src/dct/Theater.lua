@@ -11,7 +11,7 @@ local class       = require("libs.class")
 local utils       = require("libs.utils")
 local containers  = require("libs.containers")
 local json        = require("libs.json")
-local enum        = require("dct.utils.enum")
+local enum        = require("dct.enum")
 local dctutils    = require("dct.utils.utils")
 local uicmds      = require("dct.ui.cmds")
 local uiscratchpad= require("dct.ui.scratchpad")
@@ -19,8 +19,8 @@ local Observable  = require("dct.utils.Observable")
 local STM         = require("dct.templates.STM")
 local Template    = require("dct.templates.Template")
 local Region      = require("dct.templates.Region")
-local AssetFactory= require("dct.asset.AssetFactory")
-local AssetManager= require("dct.asset.AssetManager")
+local Asset       = require("dct.assets.Asset")
+local AssetManager= require("dct.assets.AssetManager")
 local Commander   = require("dct.ai.Commander")
 local Command     = require("dct.utils.Command")
 local Logger      = require("dct.utils.Logger").getByName("Theater")
@@ -75,10 +75,43 @@ function Theater:__init()
 	Profiler:profileStop("Theater:init()")
 end
 
+-- TODO: miz Placed Object Handling
+-- if an airbase becomes "dead" (especially a ship) we should
+-- probably support the ability to despawn it. For example if
+-- a carrier was destroyed in the last run we should probably remove
+-- it now.
+-- Though currently DCT does not support removing in .miz objects
+-- from the next run. This would likely be a better and more generic
+-- way to do this. Because then we can just delete those objects
+-- from the mission before spawning in any DCT assets. This would
+-- allow for airbases to naturally die and be cleaned by the asset
+-- manager. And if a commander wanted to capture an airbase
+-- we could just create a new airbase asset based on some
+-- capture critera.
+
+
+-- TODO: create a table of all mission (.miz) objects and track
+-- if these objects are killed. If they are when the state is
+-- reloaded delete these objects from the mission before adding
+-- DCT objects in. Can account for loosing a carrier group.
+
 -- a description of the world state that signifies a particular side wins
 -- TODO: create a common function that will read in a lua file like below
 -- verify it was read correctly, contains the token expected, returns the
 -- token on the stack and clears the global token space
+
+--[[
+## Theater Goals
+
+Kinds of goals:
+
+ * specifying a particular asset needs to be alive or dead
+ * specifying a particular percentage of assets conforming for a
+    set of critera need to be alive or dead
+ * specifying a scenery object needs to be alive or dead
+
+--]]
+
 function Theater:_loadGoals()
 	local goalpath = settings.theaterpath..utils.sep.."theater.goals"
 	local rc = pcall(dofile, goalpath)
@@ -187,26 +220,9 @@ local function isPlayerGroup(grp, _, _)
 	return false
 end
 
-local function genAirbaseMap()
-	local airbase_idx2name = {}
-	for _, ab in pairs(coalition.getAirbases()) do
-		airbase_idx2name[ab:getID()] = ab:getName()
-	end
-	return airbase_idx2name
-end
-
-local function getAirbaseId(grp)
-	assert(grp, "value error: grp cannot be nil")
-	local name = "airdromeId"
-	if grp.category == Unit.Category.HELICOPTER then
-		name = "helipadId"
-	end
-	return grp.data.route.points[1][name]
-end
-
 function Theater:_CreateDefaultSquadrons()
 	for _, val in pairs(coalition.side) do
-		local asset = Asset(Template({
+		local asset = Asset.factory(Template({
 				["objtype"] = "playersquadron",
 				["name"] = enum.defaultsqdns[val],
 				["regionname"] = "theater",
@@ -218,21 +234,19 @@ end
 
 function Theater:_loadPlayerSlots()
 	local cnt = 0
-	local idx2ab = genAirbaseMap()
 	for _, coa_data in pairs(env.mission.coalition) do
 		local grps = STM.processCoalition(coa_data,
 			env.getValueDictByKey,
 			isPlayerGroup,
 			nil)
 		for _, grp in ipairs(grps) do
-			local asset = Asset(Template({
+			local asset = Asset.factory(Template({
 				["objtype"]   = "playergroup",
 				["name"]      = grp.data.name,
 				["regionname"]= "theater",
 				["coalition"] = coalition.getCountryCoalition(grp.countryid),
 				["desc"]      = "Player group",
-				["tpldata"]   = grp.data,
-				["airbase"]   = idx2ab[getAirbaseId(grp)]
+				["tpldata"]   = grp,
 			}), {["name"] = "theater", ["priority"] = 1000,})
 			self:getAssetMgr():add(asset)
 			local sqdn =

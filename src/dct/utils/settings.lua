@@ -6,8 +6,8 @@
 
 require("lfs")
 local utils      = require("libs.utils")
-local dctutils   = require("dct.utils")
 local enum       = require("dct.enum")
+local dctutils   = require("dct.utils.utils")
 local config     = nil
 
 local function validate_server_config(cfgdata, tbl)
@@ -129,11 +129,13 @@ end
 -- simple algorithm; assign the defaults, then apply the server and
 -- theater configs
 --]]
-local function settings()
+local function settings(msncfg)
 	if config ~= nil then
 		return config
 	end
-
+	if not msncfg then
+		msncfg = {}
+	end
 	config = {}
 	utils.readconfigs({
 		{
@@ -143,16 +145,19 @@ local function settings()
 			["cfgtblname"] = "dctserverconfig",
 			["validate"] = validate_server_config,
 			["default"] = {
-				["debug"]       = false,
-				["profile"]     = false,
-				["statepath"]   = lfs.writedir()..utils.sep..
+				["debug"]       = msncfg.debug or false,
+				["profile"]     = msncfg.profiles or false,
+				["statepath"]   = msncfg.statepath or
+					lfs.writedir()..utils.sep..
 					env.mission.theatre.."_"..
 					env.getValueDictByKey(env.mission.sortie)..".state",
-				["theaterpath"] = lfs.tempdir() .. utils.sep .. "theater",
+				["theaterpath"] = msncfg.theaterpath or
+					lfs.tempdir() .. utils.sep .. "theater",
 				["schedfreq"] = 2, -- hertz
 				["tgtfps"] = 75,
 				["percentTimeAllowed"] = .3,
 				["period"] = 43200,
+				["logger"] = msncfg.logger or {},
 			},
 		},}, config)
 

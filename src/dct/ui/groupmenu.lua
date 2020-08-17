@@ -19,7 +19,7 @@
 --]]
 
 local enum    = require("dct.enum")
-local Logger  = require("dct.Logger").getByName("UI")
+local Logger  = require("dct.utils.Logger").getByName("UI")
 local loadout = require("dct.systems.loadouts")
 local addmenu = missionCommands.addSubMenuForGroup
 local addcmd  = missionCommands.addCommandForGroup
@@ -57,7 +57,12 @@ function menus.createMenu(theater, asset)
 
 	local msnmenu = addmenu(gid, "Mission", nil)
 	local rqstmenu = addmenu(gid, "Request", msnmenu)
-	for k, v in pairs(theater:getAssetMgr():getAsset(asset.squadron).ato) do
+
+	local ato = enum.missionType
+	if asset.squadron then
+		ato = theater:getAssetMgr():getAsset(asset.squadron).planedata.ato
+	end
+	for k, v in pairs(ato) do
 		addcmd(gid, k, rqstmenu, theater.playerRequest, theater,
 			{
 				["name"]   = name,

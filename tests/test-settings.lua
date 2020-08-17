@@ -6,7 +6,7 @@
 
 require("dcttestlibs")
 local utils = require("libs.utils")
-local dctutils = require("dct.utils")
+local dctutils = require("dct.utils.utils")
 dctsettings = {
 	["missioncfg"] = true,
 }

@@ -14,7 +14,7 @@ local function init()
 	local t = Theater()
 	world.addEventHandler(t)
 	timer.scheduleFunction(t.exec, t, timer.getTime() + 20)
-	_G.dct.Theater = t
+	_G.dct.theater = t
 	runonce = true
 end
 

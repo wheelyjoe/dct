@@ -63,7 +63,7 @@ local function createEvent(eventdata, player)
 end
 
 local function main()
-	local t = dct.Theater()
+	local t = require("dct.Theater")()
 	local playergrp = Group(4, {
 		["id"] = 15,
 		["name"] = "Uzi 35",

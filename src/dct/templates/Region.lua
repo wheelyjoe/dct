@@ -9,10 +9,10 @@ require("math")
 local class      = require("libs.class")
 local utils      = require("libs.utils")
 local dctenums   = require("dct.enum")
-local dctutils   = require("dct.utils")
-local Template   = require("dct.Template")
-local Asset      = require("dct.Asset")
-local Logger     = require("dct.Logger").getByName("Region")
+local dctutils   = require("dct.utils.utils")
+local Template   = require("dct.templates.Template")
+local Asset      = require("dct.assets.Asset")
+local Logger     = require("dct.utils.Logger").getByName("Region")
 
 local tplkind = {
 	["TEMPLATE"]  = 1,
@@ -141,7 +141,7 @@ local function addAndSpawnAsset(self, name, assetmgr, centroids)
 		return nil
 	end
 
-	local asset = Asset(tpl, self)
+	local asset = Asset.factory(tpl, self)
 	assetmgr:add(asset)
 	asset:spawn()
 	asset:generate(assetmgr, self)

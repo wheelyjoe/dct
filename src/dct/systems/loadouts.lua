@@ -8,7 +8,7 @@
 require("lfs")
 local utils    = require("libs.utils")
 local enum     = require("dct.enum")
-local dctutils = require("dct.utils")
+local dctutils = require("dct.utils.utils")
 local settings = _G.dct.settings
 
 -- returns totals for all weapon types, returns nil if the group

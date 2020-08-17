@@ -1,21 +1,16 @@
 --[[
 -- SPDX-License-Identifier: LGPL-3.0
 --
--- Provides functions to define and manage goals.
+-- Provides functions to define and manage Assets.
 --]]
-
--- TODO: Idea, a "TRANSPORT" asset could represent a helo transport
---   mission such as delivering special forces to a location where
---   they then act as a JTAC.
---
 
 local class    = require("libs.class")
 local utils    = require("libs.utils")
 local enum     = require("dct.enum")
-local dctutils = require("dct.utils")
-local Logger   = require("dct.Logger").getByName("AssetManager")
-local Command  = require("dct.Command")
-local Asset    = require("dct.Asset")
+local dctutils = require("dct.utils.utils")
+local Logger   = require("dct.utils.Logger").getByName("AssetManager")
+local Command  = require("dct.utils.Command")
+local Asset    = require("dct.assets.Asset")
 
 local ASSET_CHECK_PERIOD = 12*60  -- seconds
 
@@ -148,8 +143,8 @@ function AssetManager:checkAssets(_ --[[time]])
 
 	for _, asset in pairs(self._assetset) do
 		cnt = cnt + 1
-		asset:checkDead()
-		if asset:isDead() then
+		if asset:isSpawned() and asset:checkDead() and
+		   asset:isDead() then
 			self:remove(asset)
 		end
 	end
@@ -166,6 +161,25 @@ local handlers = {
 	[world.event.S_EVENT_DEAD] = handleDead,
 }
 
+-- TODO: how does this function handle a many-to-one relationship
+-- with multiple assets wanting to be updated on a DCS object?
+-- Do we specifically notify these objects if the asset defines
+-- specific relationships like if an asset specifies an "airbase"
+-- we additionally notify the airbase?
+-- The other way is to somehow have a have each asset responsible
+-- for updating its name list and creating a multimap, this seems
+-- like there would be issues with getting the map correct.
+-- It would seem easier to require assets to maintain a list of
+-- assets which should also be notified for events affecting
+-- them.
+--
+-- **Answer:**
+-- We do not handle the many-to-one relationship here we let the
+-- individual asset classes forward any DCS events onto assets
+-- that they feel should be notified; example: if an flight
+-- looses a plane this will result in a DCS event getting generated
+-- which means the flight should send this information to its
+-- squadron.
 function AssetManager:onDCSEvent(event)
 	local relevents = {
 		[world.event.S_EVENT_BIRTH]           = true,
@@ -228,7 +242,7 @@ function AssetManager:onDCSEvent(event)
 		handler(self, event)
 	end
 
-	asset:onDCSEvent(event, self._theater)
+	asset:onDCSEvent(event)
 end
 
 function AssetManager:marshal()

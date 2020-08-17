@@ -6,7 +6,7 @@
 
 local goalenums  = require("dct.goals.enum")
 local DamageGoal = require("dct.goals.DamageGoal")
-local Logger     = require("dct.Logger").getByName("Goal")
+local Logger     = require("dct.utils.Logger").getByName("Goal")
 
 --[[
 -- data - a description of a Goal object, its fields are:

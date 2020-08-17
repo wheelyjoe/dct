@@ -11,7 +11,7 @@ require("math")
 local class    = require("libs.class")
 local utils    = require("libs.utils")
 local enum     = require("dct.enum")
-local dctutils = require("dct.utils")
+local dctutils = require("dct.utils.utils")
 local uihuman  = require("dct.ui.human")
 local uicmds   = require("dct.ui.cmds")
 

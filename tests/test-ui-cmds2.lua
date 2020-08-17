@@ -2,11 +2,9 @@
 
 require("math")
 math.randomseed(50)
-
 require("dcttestlibs")
-
 require("dct")
-local enum   = require("dct.enum")
+local enum = require("dct.enum")
 
 -- create a player group
 local grp = Group(4, {
@@ -50,7 +48,7 @@ local testcmds = {
 }
 
 local function main()
-	local theater = dct.Theater()
+	local theater = require("dct.Theater")()
 	-- We need to send a birth event to populate the Theater.playergps table
 	theater:onEvent({
 		["id"]        = world.event.S_EVENT_BIRTH,
