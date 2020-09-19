@@ -10,42 +10,25 @@
 -- Inspired from the MOOSE PROFILER for DCS.
 --]]
 
---[[
--- Configuration:
---   Two possible ways to enable profiling
---   1. The mission can declare a flag "LUAPROFILE" with a non-zero value
---      to enable profiling for that mission.
---   2. If DCT is installed on the server profiling can be enabled
---      from the DCT configuration file.
---]]
-
 -- luacheck: read_globals log DCS net
 
 require("os")
 require("io")
-local profileenable = false
+local PROFILEENABLE = false
 
 -- Integrate with DCT if installed
+--[[
+-- TODO: uncomment when DCT supports pulling in settings for only the
+-- server config.
 local modpath = lfs.writedir() .. "Mods\\tech\\DCT"
 if lfs.attributes(modpath) == nil then
-	package.path = package.path .. ";" .. modpath .. "\\lua\\?.lua;"
+	package.path = package.path .. ";" .. modpath .. "\\lua\\?.lua"
 	local settings = require("dct.settings")()
-	profileenable = settings.server.profile
+	PROFILEENABLE = settings.server.profile
 end
+--]]
 
 local facility = "[LUAPROFILE]"
-local loadhook = false
-local missionname
-local theater
-local stime
-
-
---local function rpc_get_flag(flagname)
---	local cmd = [[
---		return trigger.misc.getUserFlag("]]..flagname..[[);
---	]]
---	return cmd
---end
 
 local function rpc_set_hook()
 	local cmd = [[
@@ -85,13 +68,6 @@ local function rpc_set_hook()
 	]]
 	return cmd
 end
-
---local function rpc_remove_hook()
---	local cmd = [[
---		debug.sethook()
---	]]
---	return cmd
---end
 
 local function rpc_export_profile_data()
 	local cmd = [[
@@ -154,27 +130,19 @@ end
 
 
 local DCTProfiler = {}
-function DCTProfiler.onMissionLoadEnd()
-	if not profileenable then
+DCTProfiler.loadhook = false
+
+function DCTProfiler:onMissionLoadEnd()
+	if not PROFILEENABLE then
 		return
 	end
-	loadhook    = true
-	missionname = DCS.getMissionName()
-	theater     = DCS.getCurrentMission().theatre
-	stime       = os.date("%Y%m%d_%H:%M:%S")
+	self.loadhook    = true
+	self.missionname = DCS.getMissionName()
+	self.theater     = DCS.getCurrentMission().mission.theatre
+	self.stime       = os.date("!%Y%m%d_%H:%M:%S")
 end
 
---[[
-function DCTProfiler.onSimulationStop()
-	-- may not need
-end
-
-function DCTProfiler.onSimulationStart()
-	-- may not need
-end
---]]
-
-function DCTProfiler.onSimulationResume()
+function DCTProfiler:onSimulationResume()
 	if not loadhook then
 		return
 	end
@@ -189,14 +157,7 @@ function DCTProfiler.onSimulationResume()
 	do_rpc('server', rpc_set_hook, "number")
 end
 
---[[
-function DCTProfiler.onSimulationFrame()
-	-- may not need, could be used to monitor the in mission
-	-- flag to enable and disable profiling
-end
---]]
-
-function DCTProfiler.onGameEvent(event)
+function DCTProfiler:onGameEvent(event)
 	if event ~= "mission_end" then
 		return
 	end
@@ -221,7 +182,28 @@ function DCTProfiler.onGameEvent(event)
 	f:close()
 end
 
+local function dct_call_hook(hook, ...)
+	local status, result = pcall(hook, ...)
+	if not status then
+		log.write(facility, log.ERROR,
+			string.format("call to hook failed; %s\n%s",
+				result, debug.traceback()))
+		return
+	end
+	return result
+end
+
 local function dct_profiler_load()
+	local handler = {}
+	function handler.onMissionLoadEnd()
+		dct_call_hook(DCTProfiler.onMissionLoadEnd, DCTProfiler)
+	end
+	function handler.onSimulationResume()
+		dct_call_hook(DCTProfiler.onSimulationResume, DCTProfiler)
+	end
+	function handler.onGameEvent(event)
+		dct_call_hook(DCTProfiler.onGameEvent, DCTProfiler)
+	end
 	DCS.setUserCallbacks(DCTProfiler)
 	log.write(facility, log.INFO, "Hooks Loaded")
 end
