@@ -59,17 +59,15 @@ What about airbase objects that are not defined as part of the theater?
 local AirbaseAsset = class(BaseAsset)
 function AirbaseAsset:__init(template, region)
 	self.__clsname = "AirbaseAsset"
-	self._dctobservers = {}
 	self._conditions = {}
+	-- TODO: what happens to the departures queue when the airbase
+	-- becomes non-operational?
 	self._departures = PriorityQueue()
 	self._parking_occupied = {}
 	self.updaterate = 60 -- seconds
-	-- we have to keep subordinates seperate from observers for spawning
-	-- reasons. Subordinates are automatically observers.
 	self.subordinates = {}
 	BaseAsset.__init(self, template, region)
 	self:_addMarshalNames({
-		"_dctobservers",
 		"_tplnames",
 		"subordinates",
 	})
@@ -111,9 +109,11 @@ function AirbaseAsset:_doOneDeparture()
 
 	self._departures:pop()
 	local flight = _G.dct.theater:getAssetMgr():getAsset(name)
-	flight:spawn(false, self)
+	flight:spawn(false)
 end
 
+-- TODO: how do we handle stopping this function when the airbase despawns
+-- or worse having multiple of these updates running at the same time?
 function AirbaseAsset:_update()
 	if not self:isSpawned() then
 		return nil
@@ -163,47 +163,29 @@ end
 function AirbaseAsset:onDCSEvent(event)
 end
 
-function AirbaseAsset:addSubordinate(asset)
-	self.subordinates[asset.name] = asset.type
-	if asset.type == enum.assetType.PLAYERGROUP and asset.parking then
-		self._parking_occupied[asset.parking] = true
-	end
-	self:addDCTObserver(asset)
-end
-
-function AirbaseAsset:removeSubordinate(name)
-	self.subordinates[name] = nil
-	self:removeDCTObserver(name)
-end
-
--- TODO: write DCT internal event notification system
--- TODO: this DCT observer concept could be moved out to a decorator
-function AirbaseAsset:addDCTObserver(asset)
-	self._dctobservers[asset.name] = asset.type
-end
-
-function AirbaseAsset:removeDCTObserver(name)
-	self._dctobservers[name] = nil
-end
-
-function AirbaseAsset:notifyDCTObservers(event)
-	local theater = _G.dct.theater
-	for name, _ in pairs(self._dctobservers) do
-		theater:getAssetMgr():getAsset(name):onDCTEvent(event)
-	end
-end
-
 --[[
-function onDCTEvent(event)
-end
-TODO: We likely want every Asset to have the capability to receive
-a DCT event.
+TODO:
 In the airbase specific case this will allow us to handle runway bombing
 or suppression by simply receiving a "weapon impact" event from the
 weapons tracking system.
 We will need to expose the dcsobject to asset mapping in the asset manager
 so that the weapon tracking system can figure out which assets to notify
 --]]
+function AirbaseAsset:onDCTEvent(event)
+end
+
+function AirbaseAsset:addSubordinate(asset)
+	self.subordinates[asset.name] = asset.type
+	if asset.type == enum.assetType.PLAYERGROUP and asset.parking then
+		self._parking_occupied[asset.parking] = true
+	end
+	self:addObserver(asset)
+end
+
+function AirbaseAsset:removeSubordinate(name)
+	self.subordinates[name] = nil
+	self:removeObserver(name)
+end
 
 function AirbaseAsset:isOperational()
 	return self:isSpawned() and next(self._conditions) == nil

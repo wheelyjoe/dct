@@ -82,6 +82,7 @@ function BaseAsset:__init(template, region)
 		"_dead",
 		"_intel",
 		"_priority",
+		"_dctobservers",
 		"type",
 		"briefing",
 		"owner",
@@ -102,6 +103,7 @@ function BaseAsset:__init(template, region)
 			["asset"]  = 0,
 		}
 	end
+	self._dctobservers = {}
 	self._initcomplete = false
 	if template ~= nil and region ~= nil then
 		self:_completeinit(template, region)
@@ -323,6 +325,33 @@ end
 function BaseAsset:despawn()
 	self._spawned = false
 end
+
+function BaseAsset:addObserver(asset)
+	if type(asset.onDCTEvent) == "function" then
+		self._dctobservers[asset.name] = true
+	end
+end
+
+function BaseAsset:removeObserver(name)
+	self._dctobservers[name] = nil
+end
+
+function BaseAsset:notifyObservers(event)
+	local theater = _G.dct.theater
+	for name, _ in pairs(self._dctobservers) do
+		local asset = theater:getAssetMgr():getAsset(name)
+		if type(asset.onDCTEvent) == "function" then
+			asset:onDCTEvent(event)
+		end
+	end
+end
+
+--[[
+Assets that support receiving DCT events should implement this function.
+
+function BaseAsset:onDCTEvent(event)
+end
+--]]
 
 function BaseAsset.defaultgoal(static)
 	local goal = {}

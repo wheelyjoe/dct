@@ -75,56 +75,61 @@ function Theater:__init()
 	Profiler:profileStop("Theater:init()")
 end
 
--- TODO: miz Placed Object Handling
--- if an airbase becomes "dead" (especially a ship) we should
--- probably support the ability to despawn it. For example if
--- a carrier was destroyed in the last run we should probably remove
--- it now.
--- Though currently DCT does not support removing in .miz objects
--- from the next run. This would likely be a better and more generic
--- way to do this. Because then we can just delete those objects
--- from the mission before spawning in any DCT assets. This would
--- allow for airbases to naturally die and be cleaned by the asset
--- manager. And if a commander wanted to capture an airbase
--- we could just create a new airbase asset based on some
--- capture critera.
-
-
--- TODO: create a table of all mission (.miz) objects and track
--- if these objects are killed. If they are when the state is
--- reloaded delete these objects from the mission before adding
--- DCT objects in. Can account for loosing a carrier group.
-
--- a description of the world state that signifies a particular side wins
--- TODO: create a common function that will read in a lua file like below
--- verify it was read correctly, contains the token expected, returns the
--- token on the stack and clears the global token space
-
---[[
-## Theater Goals
-
-Kinds of goals:
-
- * specifying a particular asset needs to be alive or dead
- * specifying a particular percentage of assets conforming for a
-    set of critera need to be alive or dead
- * specifying a scenery object needs to be alive or dead
-
---]]
-
 function Theater:_loadGoals()
-	local goalpath = settings.theaterpath..utils.sep.."theater.goals"
-	local rc = pcall(dofile, goalpath)
-	assert(rc, "failed to parse: theater goal file, '" ..
-			goalpath .. "' path likely doesn't exist")
-	assert(theatergoals ~= nil, "no theatergoals structure defined")
+	local goals = utils.readlua(
+		settings.theaterpath..utils.sep.."theater.goals",
+		"goals")
 
-	self.goals = {}
-	-- TODO: translate goal definitions written in the lua files to any
-	-- needed internal state.
-	-- Theater goals are goals written in a success format, meaning the
-	-- first side to complete all their goals wins
-	theatergoals = nil
+	--[[
+goals = {
+	["red"] = {
+		{
+			type = pilots,
+			value = 0,
+			side = blue,
+		},
+	},
+	["blue"] = {
+
+	-- instead of specifying specific assets, instead specify threat
+	-- and capability. Each Region object will eventually track its
+	-- original and current threat matrix. Allow a campaign designer
+	-- to specify the target threat level for a given region.
+		{
+			type = assets,
+			asset_filter = sams|red,
+			value = .75,
+			state = dead,
+		}, {
+			type = assets,
+			asset_filter = ewr|red,
+			value = .75,
+			state = dead,
+		}, {
+			type = base,
+			name = "khasab",
+			side = "blue",
+		}, {
+			type = assets,
+			asset_filter = camps|red,
+			value = .75,
+			state = dead,
+		}, {
+			type = assets,
+			asset_filter = missiles|red,
+			value = 1.0,
+			state = dead,
+		},
+	},
+	["neutral"] = {
+	-- What happens when there are no goals specified?
+	--  A: then the AI cannot win nor should it attempt to do anything.
+	},
+}
+
+goal types:
+ - tickets
+	--]]
 end
 
 function Theater:_loadRegions()

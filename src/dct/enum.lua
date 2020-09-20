@@ -163,6 +163,16 @@ enum.defaultsqdns = {
 	[coalition.side.BLUE]    = "Player Default SQDN Blue",
 }
 
+--[[
+enum.threatType = {
+	["AIR"]    = "air",
+	["SAM"]    = "sam",
+	["SHORAD"] = "shorad",
+	["LAND"]   = "land",
+	["SEA"]    = "sea",
+}
+--]]
+
 enum.WPNINFCOST = 5000
 
 return enum

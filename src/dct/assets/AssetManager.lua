@@ -49,6 +49,25 @@ function AssetManager:__init(theater)
 		Command(self.checkAssets, self))
 end
 
+-- TODO: miz Placed Object Handling
+-- if an airbase becomes "dead" (especially a ship) we should
+-- probably support the ability to despawn it. For example if
+-- a carrier was destroyed in the last run we should probably remove
+-- it now.
+-- Though currently DCT does not support removing in .miz objects
+-- from the next run. This would likely be a better and more generic
+-- way to do this. Because then we can just delete those objects
+-- from the mission before spawning in any DCT assets. This would
+-- allow for airbases to naturally die and be cleaned by the asset
+-- manager. And if a commander wanted to capture an airbase
+-- we could just create a new airbase asset based on some
+-- capture critera.
+
+-- TODO: create a table of all mission (.miz) objects and track
+-- if these objects are killed. If they are when the state is
+-- reloaded delete these objects from the mission before adding
+-- DCT objects in. Can account for loosing a carrier group.
+
 function AssetManager:remove(asset)
 	assert(asset ~= nil, "value error: asset object must be provided")
 
@@ -161,25 +180,6 @@ local handlers = {
 	[world.event.S_EVENT_DEAD] = handleDead,
 }
 
--- TODO: how does this function handle a many-to-one relationship
--- with multiple assets wanting to be updated on a DCS object?
--- Do we specifically notify these objects if the asset defines
--- specific relationships like if an asset specifies an "airbase"
--- we additionally notify the airbase?
--- The other way is to somehow have a have each asset responsible
--- for updating its name list and creating a multimap, this seems
--- like there would be issues with getting the map correct.
--- It would seem easier to require assets to maintain a list of
--- assets which should also be notified for events affecting
--- them.
---
--- **Answer:**
--- We do not handle the many-to-one relationship here we let the
--- individual asset classes forward any DCS events onto assets
--- that they feel should be notified; example: if an flight
--- looses a plane this will result in a DCS event getting generated
--- which means the flight should send this information to its
--- squadron.
 function AssetManager:onDCSEvent(event)
 	local relevents = {
 		[world.event.S_EVENT_BIRTH]           = true,

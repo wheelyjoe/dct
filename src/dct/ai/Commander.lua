@@ -9,6 +9,7 @@ local utils      = require("libs.utils")
 local containers = require("libs.containers")
 local enum       = require("dct.enum")
 local dctutils   = require("dct.utils.utils")
+local Marshallable = require("dct.utils.Marshallable")
 local Mission    = require("dct.ai.Mission")
 local Stats      = require("dct.utils.Stats")
 local Command    = require("dct.utils.Command")
@@ -39,37 +40,117 @@ local function genstatids()
 end
 
 --[[
--- For now the commander is only concerned with flight missions
+--  Commander class
+--    Responsible for managing a side's response via air, land, and sea.
+--
+--  Region Threat Analysis
+--    Periodically reanalyze each region's threat matrix.
+--    For calculating an airspace's 'air threat' simply find how
+--      many aircraft are in the airspace and calculate the percentage
+--      of the population, example:
+--        blue = 5 a/c; threat = 5/7 * 100 = 71
+--        red  = 2 a/c; threat = 2/7 * 100 = 29
+--      To report the air threat to a human, simply reports their side's
+--      threat value.
+--
+--  Mission Tracker
+--    * track missions and update target list as missions
+--      are completed
+--    * could update the threat matrix as missions are
+--      completed too
+--
+--  IADS Manager
+--	  * manage fighters assigned to CAP/ALERT mission to handle
+--	    the air war at the tactical level
+--	  * handle SAM network as well
+--	  * can only retask assets/missions currently available
+--
+--  ATO Manager
+--    Handles the scheduling of AI flights from available squadrons.
+--    Manages strategic analysis and issuing goals to friendly air
+--    units. This is accomplished by having each squadron queue a
+--    flight to be assigned. This allows flights spawned from the
+--    squadron to signal back when they think they are almost done
+--    so the squadron can schedule another flight based on its sortie
+--    rate and available aircraft.
+--
+--    Stats:
+--     * target fighter ratio(FR_t) - fixed value from configuration
+--     * alert factor(AF) - fixed value from configuration
+--     * fighter strength(FS)
+--     * region.sam.threat
+--     * region.shorad.threat
+--     * region.ewrs
+--     * downed pilot(P)
+--
+--    Decision Factors:
+--     * region sam threat(R_st) =
+--         clamp(sum(region.sams.threat_i),0,100)/100
+--     * region shorad threat(R_sht) =
+--         clamp(sum(region.shorad.threat_i),0,100)/100
+--     * region ewr coverage (R_it) =
+--         sum(region.ewrs)/region.ewr_original
+--     * fighter ratio (FR) =
+--         clamp(FR_t - (FS_friendly / FS_enemy),0,1)
+--     * region airbase exists(AB) =
+--         boolean(enemy airbase exists)
+--
+--    Actions:
+--     * CAS    - Us = ?
+--     * CAP    - Us = FR
+--     * ALERT  - Us = avg(FR, AF)
+--     * STRIKE - Us = 1 - avg(R_st, 1 - FR)
+--     * SEAD   - Us = avg(R_st, 1 - FR)
+--     * BAI    - Us = ?
+--     * OCA    - Us = AB * avg(1-FR, 1-R_st)
+--     * TRANS  - Us = ? (transport)
+--     * RR     - Us = ? (route recon)
+--     * CSAR   - Us = P
+--     * TANKER - Us = ?
+--     * AWACS  - Us = ?
+--
+--    Tie Breaker:
+--     Each action will have an associated priority.
 --]]
-local Commander = class()
-
+local Commander = class(Marshallable)
 function Commander:__init(theater, side)
-	self.owner        = side
-	self.theater      = theater
-	self.missionstats = Stats(genstatids())
-	self.missions     = {}
-	self.aifreq       = 300 -- seconds
-
+	Marshallable.__init(self)
+	self.owner         = side
+	self.theater       = theater
+	self.missionstats  = Stats(genstatids())
+	self.missions      = {}
+	self.flights       = containers.Queue()
+	self.stats         = Stats()
+	self.regionthreats = {}  -- indexed by region name
+	self.missionfreq   = 120 -- seconds
 	self.theater:queueCommand(self.aifreq, Command(self.update, self))
 end
 
-function Commander:update(time)
+function Commander:calcRegionThreats(time)
+end
+
+function Commander:missionTracker(time)
 	for _, mission in pairs(self.missions) do
 		mission:update(time)
 	end
-	return self.aifreq
+	return self.missionfreq
 end
 
---[[
--- TODO: complete this, the enemy information is missing
--- What does a commander need to track for theater status?
---   * the UI currently defines these items that need to be "tracked":
---     - Sea - representation of the opponent's sea control
---     - Air - representation of the opponent's air control
---     - ELINT - representation of the opponent's ability to detect
---     - SAM - representation of the opponent's ability to defend
---     - current active air mission types
---]]
+function Commander:IADSCommander(time)
+end
+
+function Commander:schedualFlight(flight)
+	self.flights:pushhead(flight)
+end
+
+function Commander:ATOSchedular(time)
+	if self.flights:empty() then
+		return self.schedfreq
+	end
+
+	local flight = self.flights:poptail()
+end
+
 function Commander:getTheaterUpdate()
 	--local enemystats = self.theater:getTargetStats(self.owner)
 	local theaterUpdate = {}
