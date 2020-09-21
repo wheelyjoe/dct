@@ -108,9 +108,10 @@ function TheaterUpdateCmd:_execute(_, cmdr)
 	else
 		msg = msg .. "  No Active Missions\n"
 	end
+	local sqdn = self.theater:getAssetMgr():getAsset(self.asset.squadron)
 	msg = msg .. string.format("\nRecommended Mission Type: %s\n",
 		dctutils.getkey(enum.missionType,
-			cmdr:recommendMissionType(self.actype)) or "None")
+			cmdr:recommendMissionType(sqdn.ato)) or "None")
 	return msg
 end
 
