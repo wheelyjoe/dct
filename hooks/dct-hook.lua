@@ -42,6 +42,7 @@ package.path = package.path..";"..modpath.."\\lua\\?.lua"
 local ok
 local socket
 local class
+local DcsWeb
 
 require("os")
 require("math")
@@ -56,6 +57,13 @@ ok, class = pcall(require, "libs.class")
 if not ok then
 	log.write(facility, log.ERROR,
 		string.format("unable to load class library: %s", class))
+	return
+end
+
+ok, DcsWeb = pcall(require, "DcsWeb")
+if not ok then
+	log.write(facility, log.ERROR,
+		string.format("unable to load DcsWeb library: %s", class))
 	return
 end
 
@@ -496,7 +504,11 @@ function DCTHooks:sendmission()
 		["mission"]  = DCS.getMissionName(),
 		["filename"] = DCS.getMissionFilename(),
 		["description"] = string.sub(DCS.getMissionDescription(),1,30000),
-		["restart_period"] = self.mission_period
+		["restart_period"] = self.mission_period,
+		["ip"] = DcsWeb.get_data('dcs:whatsmyip'),
+		["port"] = ,
+		["password"] = ,
+		["name"] = ,
 	}
 	local msg = build_message(self.serverid, msgtypes.MISSIONINFO, info)
 	self.socket:send(msg)
