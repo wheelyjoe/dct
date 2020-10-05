@@ -100,3 +100,18 @@ be found in the [template](04-api/assets/template.md) API documentation.
 
 
 [1]: https://www.youtube.com/watch?v=oi6VioycdQw "Creating Static Template"
+
+
+### Example template
+
+First, start with a totally blank map : https://i.imgur.com/qFrkYRx.jpg
+
+Pick an area to make your template : https://i.imgur.com/LHzJ8W5.png
+
+Build your template, naming objective requirements "Primary" or "Secondary" and "Destroyed" or "Damaged" as appropriate : https://i.imgur.com/ARy3yIl.png
+
+Save your template as a static template, using the description field for the briefing (will cover below) : https://i.imgur.com/Eym4hVr.png
+
+Copy the .stm file from your DCS Saved Games location/Static Template folder to the appropriate region folder in your DCS Saved Location/Theater/[region]/[subtype] folder (for your own sanity later : https://i.imgur.com/sZ3lCJK.png
+
+Create a .dct file in the same location with the EXACT same name as the .stm (.dct contents will be covered below) : https://i.imgur.com/Py8e30a.png
