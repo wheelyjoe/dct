@@ -165,6 +165,11 @@ local function checkside(keydata, tbl)
 end
 
 local function getkeys(objtype)
+	local notpldata = {
+		[enum.assetType.AIRSPACE]       = true,
+		[enum.assetType.AIRBASE]        = true,
+	}
+
 	local keys = {
 		[1] = {
 			["name"]  = "name",
@@ -206,8 +211,7 @@ local function getkeys(objtype)
 		},
 	}
 
-	if objtype ~= enum.assetType.AIRSPACE and
-		objtype ~= enum.assetType.AIRBASE then
+	if notpldata[objtype] == nil then
 		table.insert(keys, {
 			["name"]  = "tpldata",
 			["type"]  = "table",
@@ -225,8 +229,8 @@ local function getkeys(objtype)
 
 	if objtype == enum.assetType.AIRBASE then
 		table.insert(keys, {
-			["name"]  = "defenses",
-			["type"]  = "string", })
+			["name"]  = "subordinates",
+			["type"]  = "table", })
 	end
 
 	return keys

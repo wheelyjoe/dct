@@ -12,6 +12,7 @@
 local class = require("libs.class")
 local AssetBase = require("dct.assets.AssetBase")
 local uimenu  = require("dct.ui.groupmenu")
+local dctutils= require("dct.utils")
 local Logger  = dct.Logger.getByName("Asset")
 local loadout = require("dct.systems.loadouts")
 local settings = _G.dct.settings
@@ -44,6 +45,25 @@ function Player:__init(template, region)
 	})
 end
 
+local function airbaseId(grp)
+	assert(grp, "value error: grp cannot be nil")
+	local name = "airdromeId"
+	if grp.category == Unit.Category.HELICOPTER then
+		name = "helipadId"
+	end
+	return grp.data.route.points[1][name]
+end
+
+local function airbaseParkingId(grp)
+	assert(grp, "value error: grp cannot be nil")
+	local wp = grp.data.route.points[1]
+	if wp.type == AI.Task.WaypointType.TAKEOFF_PARKING or
+	   wp.type == AI.Task.WaypointType.TAKEOFF_PARKING_HOT then
+		return grp.data.units[1].parking
+	end
+	return nil
+end
+
 function Player:_completeinit(template, region)
 	AssetBase._completeinit(self, template, region)
 	-- we assume all slots in a player group are the same
@@ -51,6 +71,8 @@ function Player:_completeinit(template, region)
 	self.unittype   = self._tpldata.data.units[1].type
 	self.cmdpending = false
 	self.groupId    = self._tpldata.data.groupId
+	self.airbase    = dctutils.airbaseId2Name(airbaseId(self._tpldata))
+	self.parking    = airbaseParkingId(self._tpldata)
 	self.ato        = settings.ui.ato[self.unittype]
 	if self.ato == nil then
 		self.ato = require("dct.enum").missionType

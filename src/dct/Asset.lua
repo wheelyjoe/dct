@@ -13,7 +13,9 @@ local Asset = {}
 function Asset.factory(template, region)
 	local assettype = template.objtype
 	local asset = nil
-	if assettype == dctenum.assetType.AIRSPACE then
+	if assettype == dctenum.assetType.AIRBASE then
+		asset = require("dct.assets.Airbase")
+	elseif assettype == dctenum.assetType.AIRSPACE then
 		asset = require("dct.assets.Airspace")
 	elseif dctenum.assetClass.STRATEGIC[assettype] or
 	       assettype == dctenum.assetType.BASEDEFENSE then

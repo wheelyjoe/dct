@@ -76,6 +76,7 @@ function Theater.singleton()
 end
 
 function Theater:_delayedInit()
+	Logger:debug("executing delayedInit")
 	self:_loadOrGenerate()
 	self:_loadPlayerSlots()
 	uiscratchpad(self)

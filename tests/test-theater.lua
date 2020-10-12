@@ -228,9 +228,9 @@ local function main()
 	local theater = dct.Theater()
 	_G.dct.theater = theater
 	theater:exec(50)
-	assert(dctcheck.spawngroups == 1,
+	assert(dctcheck.spawngroups == 3,
 		string.format("group spawn broken; expected(%d), got(%d)",
-		1, dctcheck.spawngroups))
+		3, dctcheck.spawngroups))
 	assert(dctcheck.spawnstatics == 11,
 		string.format("static spawn broken; expected(%d), got(%d)",
 		11, dctcheck.spawnstatics))

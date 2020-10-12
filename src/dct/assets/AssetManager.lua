@@ -228,8 +228,7 @@ function AssetManager:marshal()
 	}
 	local shouldmarshal = utils.shallowclone(enum.assetClass.STRATEGIC)
 	shouldmarshal[enum.assetType.AIRSPACE] = true
-	shouldmarshal[enum.assetType.AIRBASE]  = true
-
+	shouldmarshal[enum.assetType.BASEDEFENSE] = true
 
 	for name, asset in pairs(self._assetset) do
 		if shouldmarshal[asset.type] ~= nil then
@@ -243,7 +242,9 @@ function AssetManager:unmarshal(data)
 	for _, assettbl in pairs(data.assets) do
 		local asset = nil
 		local assettype = assettbl.type
-		if assettype == enum.assetType.AIRSPACE then
+		if assettype == enum.assetType.AIRBASE then
+			asset = require("dct.assets.Airbase")()
+		elseif assettype == enum.assetType.AIRSPACE then
 			asset = require("dct.assets.Airspace")()
 		elseif enum.assetClass.STRATEGIC[assettype] or
 		       assettype == enum.assetType.BASEDEFENSE then
