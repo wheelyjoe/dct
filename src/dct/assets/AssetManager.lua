@@ -227,8 +227,9 @@ function AssetManager:marshal()
 		["assets"] = {},
 	}
 	local shouldmarshal = utils.shallowclone(enum.assetClass.STRATEGIC)
-	shouldmarshal[enum.assetType.AIRSPACE] = true
-	shouldmarshal[enum.assetType.BASEDEFENSE] = true
+	shouldmarshal[enum.assetType.AIRSPACE]       = true
+	shouldmarshal[enum.assetType.BASEDEFENSE]    = true
+	shouldmarshal[enum.assetType.SQUADRON]       = true
 
 	for name, asset in pairs(self._assetset) do
 		if shouldmarshal[asset.type] ~= nil then
@@ -251,6 +252,9 @@ function AssetManager:unmarshal(data)
 			asset = require("dct.assets.StaticAsset")()
 		elseif assettype == enum.assetType.PLAYERGROUP then
 			asset = require("dct.assets.Player")()
+		elseif assettype == enum.assetType.SQUADRON or
+		       assettype == enum.assetType.PLAYERSQUADRON then
+			asset = require("dct.assets.Squadron")()
 		else
 			assert(false, "unsupported asset type: "..assettype)
 		end

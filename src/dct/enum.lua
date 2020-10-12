@@ -39,6 +39,8 @@ enum.assetType = {
 	["PLAYERGROUP"] = 21,
 	["SPECIALFORCES"] = 22,
 	["FOB"]           = 23,
+	["SQUADRON"]      = 24,
+	["PLAYERSQUADRON"] = 25,
 }
 
 --[[
@@ -167,5 +169,11 @@ enum.weaponCategory = {
 }
 
 enum.WPNINFCOST = 5000
+
+enum.defaultsqdns = {
+	[coalition.side.NEUTRAL] = "Player Default SQDN Neutral",
+	[coalition.side.RED]     = "Player Default SQDN Red",
+	[coalition.side.BLUE]    = "Player Default SQDN Blue",
+}
 
 return enum

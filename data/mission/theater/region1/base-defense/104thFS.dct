@@ -1,0 +1,25 @@
+metadata = {
+	["objtype"]   = "squadron",
+	["intel"]     = 2,
+	["planedata"] = {
+		["ato"]        = { "CAP", "cas"},
+		["max"]        = 8,
+		["current"]    = 8,
+		["flightsize"] = 2, -- explicit flight size for now
+		["experience"] = {
+			["mean"]  = 3,
+			["sigma"] = 1,
+		},
+		-- seconds it takes to ready aircraft for a mission
+		["readytime"]  = {
+			["mean"]  = 900,
+			["sigma"] = 60,
+		},
+		-- seconds it takes to initiate launch of alert a/c
+		["alerttime"]  = {
+			["mean"]  = 60,
+			["sigma"] = 30,
+		},
+		["gridfmt"] = "mgrs",
+	},
+}

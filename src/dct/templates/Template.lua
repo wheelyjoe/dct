@@ -8,6 +8,7 @@ require("lfs")
 local class = require("libs.class")
 local utils = require("libs.utils")
 local enum  = require("dct.enum")
+local dctutils = require("dct.utils")
 local Goal  = require("dct.Goal")
 local STM   = require("dct.templates.STM")
 
@@ -164,10 +165,103 @@ local function checkside(keydata, tbl)
 	return false
 end
 
+local function checkmsntype(keydata, tbl)
+	local msnlist = {}
+	for _, msntype in pairs(tbl[keydata.name]) do
+		local msnstr = string.upper(msntype)
+		if type(msntype) ~= "string" or
+		   enum.missionType[msnstr] == nil then
+			return false
+		end
+		msnlist[msnstr] = enum.missionType[msnstr]
+	end
+	tbl[keydata.name] = msnlist
+	return true
+end
+
+local function checkgridfmt(keydata, tbl)
+	local fmt = string.upper(tbl[keydata.name])
+	if dctutils.posfmt[fmt] == nil then
+		return false
+	end
+	tbl[keydata.name] = dctutils.posfmt[fmt]
+	return true
+end
+
+local function checkplanedata(keydata, tbl, ai)
+	local planedata = tbl[keydata.name]
+	planedata.path = tbl.path
+	local keys = {
+		[1] = {
+			["name"]    = "ato",
+			["type"]    = "table",
+			["check"]   = checkmsntype,
+			["default"] = enum.missionType,
+		},
+		[2] = {
+			["name"]    = "current",
+			["type"]    = "number",
+			["default"] = -1,
+		},
+		[3] = {
+			["name"]    = "max",
+			["type"]    = "number",
+			["default"] = -1,
+		},
+		[4] = {
+			["name"]    = "flightsize",
+			["type"]    = "number",
+			["default"] = 1,
+		},
+	}
+
+	if ai then
+		table.insert(keys, {
+			["name"]    = "experience",
+			["type"]    = "table",
+			["default"] = {2, 1},
+		})
+		table.insert(keys, {
+			["name"]    = "readytime",
+			["type"]    = "table",
+			["default"] = {300, 90},
+		})
+		table.insert(keys, {
+			["name"]    = "alerttime",
+			["type"]    = "table",
+			["default"] = {120, 45},
+		})
+	else
+		table.insert(keys, {
+			["name"]    = "payloadlimits",
+			["type"]    = "table",
+			["default"] = {}, --_G.dct.settings.payloadlimits,
+		})
+		table.insert(keys, {
+			["name"]    = "gridfmt",
+			["type"]    = "string",
+			["check"]   = checkgridfmt,
+			["default"] = "dms",
+		})
+	end
+	utils.checkkeys(keys, planedata)
+	planedata.path = nil
+	return true
+end
+
+local function checkplanedata_ai(keydata, tbl)
+	return checkplanedata(keydata, tbl, true)
+end
+
+local function checkplanedata_player(keydata, tbl)
+	return checkplanedata(keydata, tbl, false)
+end
+
 local function getkeys(objtype)
 	local notpldata = {
 		[enum.assetType.AIRSPACE]       = true,
 		[enum.assetType.AIRBASE]        = true,
+		[enum.assetType.PLAYERSQUADRON] = true,
 	}
 
 	local keys = {
@@ -209,6 +303,11 @@ local function getkeys(objtype)
 			["type"]    = "boolean",
 			["default"] = false,
 		},
+		[9] = {
+			["name"]    = "desc",
+			["type"]    = "string",
+			["default"] = "default template description",
+		},
 	}
 
 	if notpldata[objtype] == nil then
@@ -233,6 +332,35 @@ local function getkeys(objtype)
 			["type"]  = "table", })
 	end
 
+	local default_planedata = {
+		["ato"]        = enum.missionType,
+		["max"]        = -1,
+		["current"]    = -1,
+		["flightsize"] = 1,
+	}
+
+	if objtype == enum.assetType.SQUADRON then
+		default_planedata["experience"] = {2, 1}
+		default_planedata["readytime"]  = {300, 90}
+		default_planedata["alerttime"]  = {120, 45}
+		table.insert(keys, {
+			["name"]    = "planedata",
+			["type"]    = "table",
+			["check"]   = checkplanedata_ai,
+			["default"] = default_planedata,
+		})
+	end
+
+	if objtype == enum.assetType.PLAYERSQUADRON then
+		default_planedata["payloadlimits"] = _G.dct.settings.payloadlimits
+		default_planedata["gridfmt"]       = "dms"
+		table.insert(keys, {
+			["name"]    = "planedata",
+			["type"]    = "table",
+			["check"]   = checkplanedata_player,
+			["default"] = default_planedata,
+		})
+	end
 	return keys
 end
 

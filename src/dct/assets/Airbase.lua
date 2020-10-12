@@ -17,7 +17,9 @@ local AssetBase = require("dct.assets.AssetBase")
 local Logger = dct.Logger.getByName("Asset")
 
 local allowedtpltypes = {
-	[enum.assetType.BASEDEFENSE] = true,
+	[enum.assetType.BASEDEFENSE]    = true,
+	[enum.assetType.SQUADRON]       = true,
+	[enum.assetType.PLAYERSQUADRON] = true,
 }
 
 --[[

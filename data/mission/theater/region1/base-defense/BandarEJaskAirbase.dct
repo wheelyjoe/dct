@@ -4,6 +4,7 @@ metadata = {
 	["coalition"] = 2,
 	["subordinates"] = {
 		"Bandar E Jask Airbase Defence",
+		"104thFS",
 	},
 	["ignore"] = "true",
 	["desc"] = "this is an airbase",

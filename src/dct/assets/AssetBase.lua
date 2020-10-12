@@ -27,7 +27,9 @@ local Logger   = dct.Logger.getByName("Asset")
 local settings = _G.dct.settings
 
 local norenametype = {
+	[dctenum.assetType.PLAYERSQUADRON] = true,
 	[dctenum.assetType.PLAYERGROUP]    = true,
+	[dctenum.assetType.SQUADRON]       = true,
 	[dctenum.assetType.AIRBASE]        = true,
 }
 

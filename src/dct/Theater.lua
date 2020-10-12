@@ -11,6 +11,7 @@ local class       = require("libs.class")
 local utils       = require("libs.utils")
 local containers  = require("libs.containers")
 local json        = require("libs.json")
+local dctenum     = require("dct.enum")
 local dctutils    = require("dct.utils")
 local uicmds      = require("dct.ui.cmds")
 local uiscratchpad= require("dct.ui.scratchpad")
@@ -78,6 +79,7 @@ end
 function Theater:_delayedInit()
 	Logger:debug("executing delayedInit")
 	self:_loadOrGenerate()
+	self:_CreateDefaultSquadrons()
 	self:_loadPlayerSlots()
 	uiscratchpad(self)
 	self:queueCommand(100, Command(self.export, self))
@@ -205,6 +207,17 @@ function Theater:getkicklist()
 	return json:encode(kicklist)
 end
 
+function Theater:_CreateDefaultSquadrons()
+	for _, val in pairs(coalition.side) do
+		local asset = Asset.factory(Template({
+				["objtype"] = "playersquadron",
+				["name"] = dctenum.defaultsqdns[val],
+				["regionname"] = "theater",
+				["coalition"] = val,
+			}), {["name"] = "theater", ["priority"] = 1000,})
+			self:getAssetMgr():add(asset)
+	end
+end
 
 function Theater:_loadPlayerSlots()
 	local cnt = 0
@@ -223,10 +236,19 @@ function Theater:_loadPlayerSlots()
 				["tpldata"]   = grp,
 			}), {["name"] = "theater", ["priority"] = 1000,})
 			self:getAssetMgr():add(asset)
+			local sqdn =
+				self:getAssetMgr():getAsset(asset.name:match("(%w+)(.+)"))
+			if sqdn == nil then
+				sqdn =
+					self:getAssetMgr():getAsset(dctenum.defaultsqdns[asset.owner])
+			end
+			-- TODO: register group with their squadron and airbase
+			--sqdn:add(asset)
 			cnt = cnt + 1
 		end
 	end
-	Logger:info(string.format("_loadPlayerSlots(); found %d slots", cnt))
+	Logger:info(string.format("_loadPlayerSlots(); found %d player groups",
+		cnt))
 end
 
 function Theater:registerHandler(func, ctx, name)
