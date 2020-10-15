@@ -188,6 +188,7 @@ function AssetManager:onDCSEvent(event)
 	local objcat = {
 		[Object.Category.UNIT]   = true,
 		[Object.Category.STATIC] = true,
+		[Object.Category.SCENERY]= true,
 	}
 
 	if not relevents[event.id] then
@@ -207,7 +208,7 @@ function AssetManager:onDCSEvent(event)
 		return
 	end
 
-	local name = obj:getName()
+	local name = tostring(obj:getName())
 	if obj:getCategory() == Object.Category.UNIT then
 		name = obj:getGroup():getName()
 	end

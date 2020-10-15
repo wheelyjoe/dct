@@ -112,7 +112,7 @@ end
 -- to be dead. If no death goals have been defined a default of 90%
 -- damaged for all objects in the Collection is used.
 --]]
-function StaticCollection:_setupDeathGoal(grpdata, static)
+function StaticCollection:_setupDeathGoal(grpdata, category)
 	if self._hasDeathGoals then
 		if grpdata.dct_deathgoal ~= nil then
 			self:_addDeathGoal(grpdata.name, grpdata.dct_deathgoal)
@@ -124,7 +124,10 @@ function StaticCollection:_setupDeathGoal(grpdata, static)
 		end
 	else
 		self:_addDeathGoal(grpdata.name,
-			IDCSObjectCollection.defaultgoal(static))
+			IDCSObjectCollection.defaultgoal(
+				category == Unit.Category.STRUCTURE or
+				category == Unit.Category.STRUCTURE + 1
+			))
 	end
 end
 
@@ -134,8 +137,7 @@ end
 --]]
 function StaticCollection:_setup()
 	for _, grp in ipairs(self._tpldata) do
-		self:_setupDeathGoal(grp.data,
-			grp.category == Unit.Category.STRUCTURE)
+		self:_setupDeathGoal(grp.data, grp.category)
 		self._assets[grp.data.name] = grp.data
 	end
 	assert(next(self._deathgoals) ~= nil,
@@ -210,7 +212,7 @@ function StaticCollection:onDCSEvent(event)
 	local obj = event.initiator
 
 	-- mark the unit/group/static as dead in the template, dct_dead
-	local unitname = obj:getName()
+	local unitname = tostring(obj:getName())
 	if obj:getCategory() == Object.Category.UNIT then
 		local grpname = obj:getGroup():getName()
 		local grp = self._assets[grpname]
@@ -255,14 +257,20 @@ local function removeDCTKeys(grp)
 	return g
 end
 
+local function __spawn(grp)
+	if grp.category == Unit.Category.STRUCTURE + 1 then
+		return
+	end
+	if grp.category == Unit.Category.STRUCTURE then
+		coalition.addStaticObject(grp.countryid, grp.data)
+	else
+		coalition.addGroup(grp.countryid, grp.category, grp.data)
+	end
+end
+
 function StaticCollection:_spawn()
 	for _, grp in ipairs(self._tpldata) do
-		local gcpy = removeDCTKeys(grp)
-		if gcpy.category == Unit.Category.STRUCTURE then
-			coalition.addStaticObject(gcpy.countryid, gcpy.data)
-		else
-			coalition.addGroup(gcpy.countryid, gcpy.category, gcpy.data)
-		end
+		__spawn(removeDCTKeys(grp))
 	end
 
 	self._spawned = true
