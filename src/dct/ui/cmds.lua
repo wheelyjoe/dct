@@ -105,14 +105,9 @@ function TheaterUpdateCmd:_execute(_, cmdr)
 	else
 		msg = msg .. "  No Active Missions\n"
 	end
-	local ato = enum.missionType
-	if self.asset.squadron then
-		ato = self.theater:getAssetMgr():
-			getAsset(self.asset.squadron).planedata.ato
-	end
 	msg = msg .. string.format("\nRecommended Mission Type: %s\n",
 		utils.getkey(enum.missionType,
-			cmdr:recommendMissionType(ato)) or "None")
+			cmdr:recommendMissionType(self.asset.ato)) or "None")
 	return msg
 end
 
@@ -155,11 +150,12 @@ local function briefingmsg(msn, asset)
 			msn.iffcodes.m1, msn.iffcodes.m3)..
 		string.format("%s: %s (%s)\n",
 			human.locationhdr(msn.type),
-			human.grid2actype(asset.unittype,
-				tgtinfo.location, tgtinfo.intellvl),
+			dctutils.fmtposition(
+				tgtinfo.location,
+				tgtinfo.intellvl,
+				asset.gridfmt),
 			tgtinfo.callsign)..
-		"Briefing:\n"..msn:getDescription(asset.unittype,
-			tgtinfo.intellvl)
+		"Briefing:\n"..msn:getDescription(asset.gridfmt)
 	return msg
 end
 

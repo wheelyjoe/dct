@@ -179,15 +179,6 @@ local function checkmsntype(keydata, tbl)
 	return true
 end
 
-local function checkgridfmt(keydata, tbl)
-	local fmt = string.upper(tbl[keydata.name])
-	if dctutils.posfmt[fmt] == nil then
-		return false
-	end
-	tbl[keydata.name] = dctutils.posfmt[fmt]
-	return true
-end
-
 local function checkplanedata(keydata, tbl, ai)
 	local planedata = tbl[keydata.name]
 	planedata.path = tbl.path
@@ -235,13 +226,7 @@ local function checkplanedata(keydata, tbl, ai)
 		table.insert(keys, {
 			["name"]    = "payloadlimits",
 			["type"]    = "table",
-			["default"] = {}, --_G.dct.settings.payloadlimits,
-		})
-		table.insert(keys, {
-			["name"]    = "gridfmt",
-			["type"]    = "string",
-			["check"]   = checkgridfmt,
-			["default"] = "dms",
+			["default"] = _G.dct.settings.payloadlimits,
 		})
 	end
 	utils.checkkeys(keys, planedata)
@@ -353,7 +338,6 @@ local function getkeys(objtype)
 
 	if objtype == enum.assetType.PLAYERSQUADRON then
 		default_planedata["payloadlimits"] = _G.dct.settings.payloadlimits
-		default_planedata["gridfmt"]       = "dms"
 		table.insert(keys, {
 			["name"]    = "planedata",
 			["type"]    = "table",

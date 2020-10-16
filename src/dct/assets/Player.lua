@@ -11,11 +11,30 @@
 
 local class = require("libs.class")
 local AssetBase = require("dct.assets.AssetBase")
-local uimenu  = require("dct.ui.groupmenu")
 local dctutils= require("dct.utils")
-local Logger  = dct.Logger.getByName("Asset")
+local uimenu  = require("dct.ui.groupmenu")
 local loadout = require("dct.systems.loadouts")
+local Logger  = dct.Logger.getByName("Asset")
 local settings = _G.dct.settings
+
+local function airbaseId(grp)
+	assert(grp, "value error: grp cannot be nil")
+	local name = "airdromeId"
+	if grp.category == Unit.Category.HELICOPTER then
+		name = "helipadId"
+	end
+	return grp.data.route.points[1][name]
+end
+
+local function airbaseParkingId(grp)
+	assert(grp, "value error: grp cannot be nil")
+	local wp = grp.data.route.points[1]
+	if wp.type == AI.Task.WaypointType.TAKEOFF_PARKING or
+	   wp.type == AI.Task.WaypointType.TAKEOFF_PARKING_HOT then
+		return grp.data.units[1].parking
+	end
+	return nil
+end
 
 --[[
 -- Player - represents a player slot in DCS
@@ -37,31 +56,8 @@ function Player:__init(template, region)
 		[world.event.S_EVENT_TAKEOFF] = self.handleTakeoff,
 	}
 	AssetBase.__init(self, template, region)
-	self:_addMarshalNames({
-		"unittype",
-		"groupId",
-		"airbase",
-		"parking",
-	})
-end
-
-local function airbaseId(grp)
-	assert(grp, "value error: grp cannot be nil")
-	local name = "airdromeId"
-	if grp.category == Unit.Category.HELICOPTER then
-		name = "helipadId"
-	end
-	return grp.data.route.points[1][name]
-end
-
-local function airbaseParkingId(grp)
-	assert(grp, "value error: grp cannot be nil")
-	local wp = grp.data.route.points[1]
-	if wp.type == AI.Task.WaypointType.TAKEOFF_PARKING or
-	   wp.type == AI.Task.WaypointType.TAKEOFF_PARKING_HOT then
-		return grp.data.units[1].parking
-	end
-	return nil
+	self.cmdpending = false
+	self.disabled   = true
 end
 
 function Player:_completeinit(template, region)
@@ -69,15 +65,20 @@ function Player:_completeinit(template, region)
 	-- we assume all slots in a player group are the same
 	self._tpldata   = template:copyData()
 	self.unittype   = self._tpldata.data.units[1].type
-	self.cmdpending = false
 	self.groupId    = self._tpldata.data.groupId
 	self.airbase    = dctutils.airbaseId2Name(airbaseId(self._tpldata))
 	self.parking    = airbaseParkingId(self._tpldata)
-	self.ato        = settings.ui.ato[self.unittype]
-	if self.ato == nil then
-		self.ato = require("dct.enum").missionType
+	self.gridfmt    = settings.ui.gridfmt[self.unittype] or
+		dctutils.posfmt.DMS
+	self.squadron   = self.name:match("(%w+)(.+)")
+	if self.squadron == nil then
+		self.squadron = dctenum.defaultsqdns[self.owner]
 	end
-	self.payloadlimits = settings.payloadlimits
+
+	local theater = require("dct.Theater").singleton()
+	local sqdn    = theater:getAssetMgr():getAsset(self.squadron)
+	self.ato      = sqdn:getATO()
+	self.plimits  = sqdn:getPayloadLimits()
 end
 
 function Player:getObjectNames()

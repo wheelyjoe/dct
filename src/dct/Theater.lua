@@ -236,14 +236,6 @@ function Theater:_loadPlayerSlots()
 				["tpldata"]   = grp,
 			}), {["name"] = "theater", ["priority"] = 1000,})
 			self:getAssetMgr():add(asset)
-			local sqdn =
-				self:getAssetMgr():getAsset(asset.name:match("(%w+)(.+)"))
-			if sqdn == nil then
-				sqdn =
-					self:getAssetMgr():getAsset(dctenum.defaultsqdns[asset.owner])
-			end
-			-- TODO: register group with their squadron and airbase
-			--sqdn:add(asset)
 			cnt = cnt + 1
 		end
 	end

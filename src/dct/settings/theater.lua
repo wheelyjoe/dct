@@ -74,11 +74,25 @@ local function validate_codenamedb(cfgdata, tbl)
 	return newtbl
 end
 
+local function checkgridfmt(fmttbl, file)
+	for actype, gridfmt in pairs(fmttbl) do
+		local fmt = dctutils.posfmt[string.upper(gridfmt)]
+		assert(fmt ~= nil,
+			string.format("invalid grid format '%s'; file: %s",
+				actype, file))
+		fmttbl[actype] = fmt
+	end
+end
+
 local function validate_ui(cfgdata, tbl)
 	local newtbl = {}
 	utils.mergetables(newtbl, cfgdata.default)
 	for k, v in pairs(tbl) do
-		utils.mergetables(newtbl[k], v)
+		if k == "" then
+			checkgridfmt(v, cfgdata.file)
+		else
+			utils.mergetables(newtbl[k], v)
+		end
 	end
 	return newtbl
 end
@@ -154,7 +168,6 @@ local function theatercfgs(config)
 					["FA-18C_hornet"] = dctutils.posfmt.DDM,
 					["M-2000C"]       = dctutils.posfmt.DDM,
 				},
-				["ato"] = {},
 			},
 		},
 	}

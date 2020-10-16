@@ -84,6 +84,30 @@ the enforcement policy action is taken.
  - stores the weapons restriction table that defines the cost of each
    weapon
 
+## Configuring UI elements
+
+The grid format used when reporting coordinates to players, if empty an
+appropriate default will be used.
+
+### Example
+
+**file location:** `<theater-root>/settings/ui.cfg`
+
+	dctui = {
+		["gridfmt"] = {
+			["Ka-50"] = "ddm",
+			["UH-1H"] = "mgrs",
+			["A-10A"] = "dd",
+			["A-10C"] = "dms",
+		},
+	}
+
+### Internal API
+
+**table access:** `_G.dct.settings.ui`
+
+ - stores the grid format table
+
 ## Code Name Overriding
 
 DCT assigns 'code names' to assets that are later used when players
