@@ -58,6 +58,14 @@ function Player:__init(template, region)
 	AssetBase.__init(self, template, region)
 	self.cmdpending = false
 	self.disabled   = true
+
+	-- TODO: instead of keeping extra lists, we could mark each class
+	-- if it should be marshallable or not and then any higher object
+	-- (AssetManager) can just check this field.
+	-- NOTE: even better, just remove the [un]marshal functions and
+	-- then ducktype for these interfaces in AssetManager
+	self.marshal = nil
+	self.unmarshal = nil
 end
 
 function Player:_completeinit(template, region)
@@ -79,6 +87,13 @@ function Player:_completeinit(template, region)
 	local sqdn    = theater:getAssetMgr():getAsset(self.squadron)
 	self.ato      = sqdn:getATO()
 	self.plimits  = sqdn:getPayloadLimits()
+
+	-- observe the airbase object for things like when the airbase is
+	-- disabled so we can disable this player slot
+	local ab = theater:getAssetMgr():getAsset(self.airbase)
+	if ab ~= nil then
+		ab:addObserver(self)
+	end
 end
 
 function Player:getObjectNames()
@@ -134,3 +149,11 @@ function Player:kick()
 end
 
 return Player
+
+--[[
+-- TODO: really no reason to have two different event handlers, we can
+-- just extend the event ids past what DCS defines to use for our own
+-- purposes.
+function Player:onDCTEvent(event)
+end
+--]]

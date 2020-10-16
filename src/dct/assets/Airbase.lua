@@ -211,7 +211,9 @@ function AirbaseAsset:isOperational()
 	return self:isSpawned() and next(self._conditions) == nil
 end
 
-function AirbaseAsset:addFlight(delay, flight)
+function AirbaseAsset:addFlight(flight, delay)
+	assert(flight, self.__clsname..":addFlight - flight required")
+	local delay = delay or 0
 	self._departures:push(timer.getAbsTime() + delay, flight.name)
 end
 

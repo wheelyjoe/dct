@@ -1,16 +1,15 @@
 --[[
 -- SPDX-License-Identifier: LGPL-3.0
 --
--- Represents a Squadron.
+-- Represents an AISquadron.
 --
--- Squadron<AssetBase>:
+-- AISquadron<Squadron>:
 --   generates additional assets (flights), tracks the state of an
---   aircraft squadron, handles AI or player squadrons
+--   aircraft squadron
 --]]
 
 local class = require("libs.class")
 local enum  = require("dct.enum")
-local AssetBase = require("dct.assets.AssetBase")
 local Squadron = require("dct.assets.Squadron")
 local Logger = dct.Logger.getByName("Asset")
 
@@ -60,43 +59,28 @@ local function getPlaneInfo(sqdn, tpldata)
 	end
 end
 
-local Squadron = class(AssetBase)
-function Squadron:__init(template, region)
-	self.__clsname = "Squadron"
-	self._subordinates = {}
-	AssetBase.__init(self, template, region)
-	self:_addMarshalNames({
-		"planedata",
-		"airbase",
-	})
+local AISquadron = class(AssetBase)
+function AISquadron:__init(template, region)
+	self.__clsname = "AISquadron"
+	Squadron.__init(self, template, region)
 end
 
-function Squadron:_completeinit(template, region)
-	AssetBase._completeinit(self, template, region)
-	self.planedata = utils.deepcopy(template.planedata)
-	self.airbase   = template.airbase
+function AISquadron:_completeinit(template, region)
+	Squadron._completeinit(self, template, region)
+	assert(self.airbase ~= nil, string.format(
+		"%s(%s): no airbase defined and is required",
+		self.__clsname, self.name))
 	getPlaneInfo(self, template:copyData())
-
 end
 
-function Squadron:addSubordinate(asset)
-	self._subordinates[asset.name] = true
+function AISquadron:scheduleFlight(msntype, delay)
+	local flight, airbase
+	local delay = delay or 0
+	-- TODO: stuff
+	airbase:addFlight(flight, delay)
 end
 
-function Squadron:removeSubordinate(name)
-	self._subordinates[asset.name] = nil
-end
-
-function Squadron:spawn(ignore)
-	if not ignore and self:isSpawned() then
-		Logger:error(string.format("runtime bug - %s(%s) already spawned",
-			self.__clsname, self.name))
-		return
-	end
-	AssetBase.spawn(self)
-end
-
-return Squadron
+return AISquadron
 
 --[[
 unit definition

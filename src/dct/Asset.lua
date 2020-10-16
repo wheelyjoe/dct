@@ -22,9 +22,10 @@ function Asset.factory(template, region)
 		asset = require("dct.assets.StaticAsset")
 	elseif assettype == dctenum.assetType.PLAYERGROUP then
 		asset = require("dct.assets.Player")
-	elseif assettype == dctenum.assetType.SQUADRON or
-	       assettype == dctenum.assetType.PLAYERSQUADRON then
-		asset = require("dct.assets.Squadron")
+	elseif assettype == dctenum.assetType.SQUADRON then
+		asset = require("dct.assets.AISquadron")
+	elseif assettype == dctenum.assetType.PLAYERSQUADRON then
+		asset = require("dct.assets.PlayerSquadron")
 	else
 		assert(false, "unsupported asset type: "..assettype)
 	end
