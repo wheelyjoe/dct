@@ -29,18 +29,28 @@ end
 
 function Collect:assetCheck(foundItem, val)
   if foundItem:getCategory() == Object.Category.UNIT then
+		for _, name  in pairs(self.tgtName) do
+			if foundItem:getName() == name then
+				--increment weight + delete unit or
+				--add pickup option "f1. Crate - 1000kg", etc
+			end
+		end
     --check if unit is part of group to be picked up
   elseif foundItem:getCategory() == Object.Category.STATIC then
-    --check if unit is static to be picked up
+		for _, name  in pairs(self.tgtName) do
+			if foundItem:getName() == name then
+			--increment weight + delete unit or
+			--add pickup option "f1. Crate - 1000kg", etc
+			end
+		end
   end
 end
 
 function Collect:checkPickup()
-  local vel = vect:Vector3D(self.group:getUnit(1):getVelocity())
-  if vel:magnitude() > 3 then
-    trigger.action.outTextForGroup(self.group.groupId, "You are moving too fast, slow down and try again", 10)
-    return
-  end
+	if (self.group:getUnit(1):inAir()) then
+  	trigger.action.outTextForGroup(self.group.groupId, "Please land before attempting pickup", 10
+		return
+	end
   local volS = {
    id = world.VolumeType.SPHERE,
    params = {
